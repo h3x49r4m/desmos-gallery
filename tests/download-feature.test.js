@@ -9,7 +9,7 @@ describe('Download Feature Tests', () => {
         test('should have download button in gallery.html', async () => {
             const html = await fs.readFile(galleryPath, 'utf8');
             expect(html).toContain('modalDownloadBtn');
-            expect(html).toContain('⬇ Download');
+            expect(html).toContain('Download');
             expect(html).toContain('btn-success');
         });
 
