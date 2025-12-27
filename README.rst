@@ -9,13 +9,17 @@ Features
 - **2D & 3D Graph Support**: Create graphs using Desmos 2D and 3D calculators
 - **Interactive Preview**: Real-time graph preview as you type formulas
 - **Tag System**: Organize graphs with custom tags for easy filtering
+- **Type Filtering**: Filter graphs by type (2D or 3D) in the gallery
 - **Gallery View**: Browse all saved graphs in a responsive card-based layout
 - **Batch Selection & Deletion**: Select multiple graphs and delete them in bulk
+- **Modal Editing**: Edit graph details (title, author, tags, formula, line color) in a modal
 - **Persistent Storage**: Graphs are saved to JSON file and persist between server restarts
 - **Modern UI**: Glass morphism design with smooth animations and micro-interactions
 - **Responsive Design**: Fully responsive layout that works on desktop and mobile devices
 - **Auto-fit Layout**: Graph and form automatically fit the screen height
 - **Dense Form Design**: Compact input form with smaller fonts for efficient space usage
+- **Animated Background**: Floating gradient patterns for visual appeal
+- **Skeleton Loading**: Loading animations for better user experience
 
 Installation
 ------------
@@ -115,13 +119,17 @@ Run the test suite::
     npm test
 
 Test Coverage:
-- **97 tests** covering all functionality
+- **178 tests** covering all functionality
 - **Server Tests** (33 tests): API endpoints, static file serving, error handling, CORS, security
 - **Data Manager Tests** (23 tests): File operations, validation, sanitization, data integrity
 - **UI Component Tests** (12 tests): GraphManager, GalleryManager, form validation, responsive behavior
 - **Batch Selection UI Tests** (16 tests): Checkbox selection, visual feedback, batch deletion
 - **Batch Delete Tests** (8 tests): Server-side batch operations, error handling, performance
-- **Simple Tests** (5 tests): Basic functionality validation
+- **Modal Edit Tests** (29 tests): Modal editing functionality, form validation, error handling
+- **Form Layout Tests** (13 tests): Form field order and structure validation
+- **Modal Tag Bug Tests** (13 tests): Tag handling in modal editing
+- **Type Filter Tests** (25 tests): Type filtering functionality and integration
+- **Simple Tests** (4 tests): Basic functionality validation
 
 Test Categories:
 - Data management functionality
@@ -141,22 +149,29 @@ Project Structure
 ::
 
     desmos_gallery/
-    ├── public/                 # Static files
+    ├── src/                   # Server-side code
+    │   └── server.js          # Express server with API endpoints
+    ├── static/                # Static files (client-side)
     │   ├── index.html         # Main graph creation page
     │   ├── gallery.html       # Gallery browsing page with batch selection
     │   ├── css/
     │   │   └── styles.css     # Modern CSS with glass morphism design
-    │   └── src/               # Client-side JavaScript
-    │       ├── graphManager.js    # Graph creation and management
-    │       └── galleryManager.js  # Gallery display and batch operations
-    ├── src/
-    │   └── server.js          # Express server with API endpoints
+    │   ├── js/                # Client-side JavaScript
+    │   │   ├── graphManager.js    # Graph creation and management
+    │   │   └── galleryManager.js  # Gallery display and batch operations
+    │   ├── calculator.js      # Desmos 2D calculator API
+    │   ├── calculator3d.js    # Desmos 3D calculator API
+    │   └── favicon.svg        # Site favicon
     ├── tests/                 # Test files
     │   ├── server.test.js           # Server and API tests
     │   ├── data-manager.test.js     # Data management tests
     │   ├── ui-components.test.js    # UI component tests
     │   ├── batch-selection-ui.test.js # Batch selection UI tests
     │   ├── batch-delete.test.js      # Batch delete API tests
+    │   ├── modal-edit.test.js        # Modal editing tests
+    │   ├── form-layout.test.js       # Form layout validation tests
+    │   ├── modal-tag-bug.test.js     # Modal tag bug fix tests
+    │   ├── type-filter.test.js       # Type filtering tests
     │   ├── simple.test.js           # Basic functionality tests
     │   └── setup.js                 # Test setup utilities
     ├── _data/                 # JSON data storage (created automatically)
@@ -168,7 +183,7 @@ Scripts
 ~~~~~~~
 
 - ``npm start`` - Start the development server
-- ``npm test`` - Run the complete test suite (97 tests)
+- ``npm test`` - Run the complete test suite (178 tests)
 - ``npm run test:watch`` - Run tests in watch mode
 - ``npm run test:coverage`` - Run tests with coverage report
 
@@ -192,7 +207,9 @@ Additional Features
 
 - **Mini Previews**: Graph cards show miniature Desmos previews
 - **Modal View**: Click any graph to see full-size preview
+- **Modal Editing**: Edit all graph properties in an interactive modal
 - **Tag Filtering**: Dynamic filtering by graph tags
+- **Type Filtering**: Filter graphs by 2D or 3D type
 - **Empty State**: Helpful message when no graphs exist
 - **Form Validation**: Real-time validation of graph inputs
 - **Color Picker**: Visual color selection for graph lines
@@ -200,6 +217,9 @@ Additional Features
 - **Timestamps**: Automatic creation timestamps for all graphs
 - **Error Handling**: Comprehensive error handling with user feedback
 - **Security Headers**: Built-in security headers for protection
+- **Glass Morphism UI**: Modern glass-like design with backdrop blur
+- **Smooth Animations**: Hover effects, transitions, and micro-interactions
+- **Responsive Grid**: Adaptive card layout for different screen sizes
 
 Technical Details
 -----------------
@@ -220,5 +240,5 @@ Contributing
 2. Create a feature branch
 3. Make your changes
 4. Add tests for new functionality (aim for 100% test coverage)
-5. Run the test suite (all 97 tests must pass)
+5. Run the test suite (all 178 tests must pass)
 6. Submit a pull request
