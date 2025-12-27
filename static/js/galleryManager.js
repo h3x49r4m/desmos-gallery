@@ -577,20 +577,82 @@ class GalleryManager {
     }
 
     async downloadGraph() {
-        if (!this.currentEditingGraph || !this.modalCalculator) {
+        if (!this.currentEditingGraph) {
             console.error('No graph to download');
-            return;
+            throw new Error('No graph to download');
+        }
+        
+        if (!this.modalCalculator) {
+            console.error('Calculator element not found');
+            throw new Error('Calculator element not found');
         }
 
         try {
-            // Get the calculator element
-            const calculatorElement = document.getElementById('modalCalculator');
-            if (!calculatorElement) {
-                console.error('Calculator element not found');
-                return;
-            }
+            // Use the modal calculator to get the screenshot
+            const calculatorImage = await new Promise((resolve, reject) => {
+                // Try asyncScreenshot first
+                if (this.modalCalculator.asyncScreenshot) {
+                    this.modalCalculator.asyncScreenshot({
+                        width: 800,
+                        height: 500,
+                        targetPixelRatio: 2
+                    }, (dataUrl) => {
+                        if (dataUrl) {
+                            const img = new Image();
+                            img.onload = () => resolve(img);
+                            img.onerror = () => {
+                                // Fallback to screenshot method
+                                try {
+                                    const data = this.modalCalculator.screenshot({
+                                        width: 800,
+                                        height: 500,
+                                        targetPixelRatio: 2
+                                    });
+                                    const img2 = new Image();
+                                    img2.onload = () => resolve(img2);
+                                    img2.onerror = () => reject(new Error('Failed to load calculator screenshot'));
+                                    img2.src = data;
+                                } catch (e) {
+                                    reject(new Error('Failed to capture calculator screenshot'));
+                                }
+                            };
+                            img.src = dataUrl;
+                        } else {
+                            // Fallback to screenshot method
+                            try {
+                                const data = this.modalCalculator.screenshot({
+                                    width: 800,
+                                    height: 500,
+                                    targetPixelRatio: 2
+                                });
+                                const img2 = new Image();
+                                img2.onload = () => resolve(img2);
+                                img2.onerror = () => reject(new Error('Failed to load calculator screenshot'));
+                                img2.src = data;
+                            } catch (e) {
+                                reject(new Error('Failed to capture calculator screenshot'));
+                            }
+                        }
+                    });
+                } else {
+                    // Use regular screenshot
+                    try {
+                        const data = this.modalCalculator.screenshot({
+                            width: 800,
+                            height: 500,
+                            targetPixelRatio: 2
+                        });
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Failed to load calculator screenshot'));
+                        img.src = data;
+                    } catch (e) {
+                        reject(new Error('Failed to capture calculator screenshot'));
+                    }
+                }
+            });
 
-            // Create a canvas for the download
+            // Create a canvas for the final download image
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
@@ -614,18 +676,15 @@ class GalleryManager {
             const date = new Date(this.currentEditingGraph.createdAt).toLocaleDateString();
             ctx.fillText(`By ${this.currentEditingGraph.author} • ${date}`, canvas.width / 2, 85);
             
-            // Add formula with proper math rendering
+            // Add formula with proper LaTeX rendering using KaTeX
             await this.renderMathFormula(ctx, this.currentEditingGraph.formula, canvas.width / 2, 120);
             
-            // Capture the calculator as an image
-            const calculatorImage = await this.captureCalculator(calculatorElement);
-            
-            // Draw the calculator image
+            // Draw the calculator screenshot
             if (calculatorImage) {
                 const imgWidth = 800;
                 const imgHeight = 500;
                 const x = (canvas.width - imgWidth) / 2;
-                const y = 150;
+                const y = 160; // Adjusted to accommodate formula above
                 
                 // Add shadow for the calculator
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
@@ -643,7 +702,7 @@ class GalleryManager {
                 ctx.shadowOffsetX = 0;
                 ctx.shadowOffsetY = 0;
                 
-                // Draw the calculator image
+                // Draw the calculator screenshot
                 ctx.drawImage(calculatorImage, x, y, imgWidth, imgHeight);
             }
             
@@ -679,11 +738,309 @@ class GalleryManager {
         }
     }
 
+    async renderMathFormula(ctx, formula, centerX, centerY) {
+
+            try {
+
+                // Check if KaTeX and html2canvas are available
+
+                if (typeof katex === 'undefined' || typeof html2canvas === 'undefined') {
+
+                    // Fallback to plain text if libraries are not available
+
+                    ctx.font = '18px "Courier New", monospace';
+
+                    ctx.fillStyle = '#1976D2';
+
+                    ctx.textAlign = 'center';
+
+                    ctx.fillText(formula, centerX, centerY);
+
+                    return;
+
+                }
+
+    
+
+                // Create a temporary container div
+
+                const containerDiv = document.createElement('div');
+
+                containerDiv.style.position = 'absolute';
+
+                containerDiv.style.left = '-9999px';
+
+                containerDiv.style.top = '-9999px';
+
+                containerDiv.style.fontSize = '18px';
+
+                containerDiv.style.color = '#1976D2';
+
+                containerDiv.style.padding = '15px';
+
+                containerDiv.style.backgroundColor = 'white';
+
+                containerDiv.style.display = 'inline-block';
+
+                containerDiv.style.width = 'auto';  // Let it size naturally
+
+                containerDiv.style.overflow = 'visible';  // Don't clip content
+
+                document.body.appendChild(containerDiv);
+
+    
+
+                // Use the formula as-is for KaTeX
+
+    
+
+                            let latexFormula = formula;
+
+    
+
+                            
+
+    
+
+                            // Common Desmos to LaTeX conversions
+
+    
+
+                            latexFormula = latexFormula.replace(/\bpi\b/g, '\\pi');
+
+    
+
+                            latexFormula = latexFormula.replace(/\be\b/g, 'e');
+
+    
+
+                            latexFormula = latexFormula.replace(/\btheta\b/g, '\\theta');
+
+    
+
+                            latexFormula = latexFormula.replace(/\bsin\b/g, '\\sin');
+
+    
+
+                            latexFormula = latexFormula.replace(/\bcos\b/g, '\\cos');
+
+    
+
+                            latexFormula = latexFormula.replace(/\btan\b/g, '\\tan');
+
+    
+
+                            
+
+    
+
+                            
+
+    
+
+                            console.log('Original formula:', formula);
+
+    
+
+                            console.log('LaTeX formula:', latexFormula);
+
+    
+
+                            
+
+    
+
+                            // Check if KaTeX is available
+
+    
+
+                            
+
+    
+
+                                        if (typeof katex !== 'undefined') {
+
+    
+
+                            
+
+    
+
+                                            try {
+
+    
+
+                            
+
+    
+
+                                                katex.render(formula, containerDiv, {
+
+    
+
+                                    throwOnError: false,
+
+    
+
+                                    displayMode: true,
+
+    
+
+                                    fontSize: '1.2em',
+
+    
+
+                                    color: '#1976D2'
+
+    
+
+                                });
+
+    
+
+                            } catch (e) {
+
+    
+
+                                console.error('KaTeX rendering error:', e);
+
+    
+
+                                // Fallback: display as plain text
+
+    
+
+                                                                containerDiv.innerHTML = `<span style="color: #1976D2; font-size: 18px; font-family: 'Courier New', monospace;">${formula}</span>`;
+
+    
+
+                                                            }
+
+    
+
+                                                } else {
+
+    
+
+                                                    // KaTeX is not available, fallback to plain text
+
+    
+
+                                                    containerDiv.innerHTML = `<span style="color: #1976D2; font-size: 18px; font-family: 'Courier New', monospace;">${formula}</span>`;
+
+    
+
+                                                }
+
+    
+
+                // Wait a bit for rendering to complete
+
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+    
+
+                // Get the dimensions of the rendered formula
+
+                const rect = containerDiv.getBoundingClientRect();
+
+                const width = Math.max(rect.width + 40, 200);
+
+                const height = Math.max(rect.height + 30, 60);
+
+    
+
+                // Use html2canvas to capture the rendered formula
+
+                const canvas = await html2canvas(containerDiv, {
+
+                    backgroundColor: '#ffffff',
+
+                    scale: 2,  // Higher resolution
+
+                    logging: false,
+
+                    useCORS: true,
+
+                    allowTaint: true,
+
+                    width: width,  // Explicit width
+
+                    height: height,  // Explicit height
+
+                    windowWidth: width,
+
+                    windowHeight: height
+
+                });
+
+    
+
+                // Calculate position to center the formula
+
+                const x = centerX - width / 2;
+
+                const y = centerY - height / 2;
+
+    
+
+                // Draw background
+
+                ctx.fillStyle = 'rgba(25, 118, 210, 0.05)';
+
+                ctx.fillRect(x - 20, y - 15, width + 40, height + 30);
+
+    
+
+                // Draw border
+
+                ctx.strokeStyle = 'rgba(25, 118, 210, 0.2)';
+
+                ctx.lineWidth = 1;
+
+                ctx.strokeRect(x - 20, y - 15, width + 40, height + 30);
+
+    
+
+                // Draw the formula canvas on the main canvas
+
+                ctx.drawImage(canvas, x, y, width, height);
+
+    
+
+                // Clean up
+
+                document.body.removeChild(containerDiv);
+
+    
+
+            } catch (error) {
+
+                console.error('Error rendering formula:', error);
+
+                // Fallback to plain text
+
+                ctx.font = '18px "Courier New", monospace';
+
+                ctx.fillStyle = '#1976D2';
+
+                ctx.textAlign = 'center';
+
+                ctx.fillText(formula, centerX, centerY);
+
+            }
+
+        }
+
     async captureCalculator(element) {
         return new Promise((resolve) => {
             // For Desmos calculators, we need to use their API to get the image
             if (this.modalCalculator && this.modalCalculator.asyncScreenshot) {
-                this.modalCalculator.asyncScreenshot((dataUrl) => {
+                this.modalCalculator.asyncScreenshot({
+                    width: 800,
+                    height: 500,
+                    targetPixelRatio: 2
+                }, (dataUrl) => {
                     const img = new Image();
                     img.onload = () => resolve(img);
                     img.onerror = () => resolve(null);
@@ -709,84 +1066,6 @@ class GalleryManager {
                 img.src = canvas.toDataURL();
             }
         });
-    }
-
-    async renderMathFormula(ctx, formula, x, y) {
-        try {
-            // Create a temporary div element for KaTeX rendering
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            tempDiv.style.top = '-9999px';
-            tempDiv.style.fontSize = '24px';
-            tempDiv.style.color = '#212121';
-            tempDiv.style.fontFamily = 'Inter, sans-serif';
-            document.body.appendChild(tempDiv);
-
-            // Convert Desmos formula to LaTeX format if needed
-            const latexFormula = this.convertToLatex(formula);
-
-            // Render the formula using KaTeX
-            if (typeof katex !== 'undefined') {
-                katex.render(latexFormula, tempDiv, {
-                    throwOnError: false,
-                    displayMode: false,
-                    output: 'html'
-                });
-            } else {
-                // Fallback to plain text if KaTeX is not available
-                tempDiv.textContent = formula;
-            }
-
-            // Wait for rendering to complete
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            // Create an SVG from the rendered formula
-            const svgString = this.createSVGFromElement(tempDiv);
-            
-            // Create an image from the SVG
-            const img = new Image();
-            const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(svgBlob);
-            
-            await new Promise((resolve, reject) => {
-                img.onload = () => {
-                    // Calculate the actual width of the rendered formula
-                    const bbox = tempDiv.getBoundingClientRect();
-                    const formulaWidth = bbox.width || 400;
-                    
-                    // Center the formula horizontally
-                    const xPos = x - formulaWidth / 2;
-                    
-                    // Draw the formula on canvas
-                    ctx.drawImage(img, xPos, y - 20, formulaWidth, 40);
-                    
-                    // Clean up
-                    URL.revokeObjectURL(url);
-                    document.body.removeChild(tempDiv);
-                    resolve();
-                };
-                img.onerror = () => {
-                    // Fallback to text rendering
-                    ctx.font = '24px Inter, sans-serif';
-                    ctx.fillStyle = '#212121';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(formula, x, y);
-                    URL.revokeObjectURL(url);
-                    document.body.removeChild(tempDiv);
-                    resolve();
-                };
-                img.src = url;
-            });
-
-        } catch (error) {
-            console.error('Error rendering math formula:', error);
-            // Fallback to plain text
-            ctx.font = '24px Inter, sans-serif';
-            ctx.fillStyle = '#212121';
-            ctx.textAlign = 'center';
-            ctx.fillText(formula, x, y);
-        }
     }
 
     convertToLatex(formula) {
