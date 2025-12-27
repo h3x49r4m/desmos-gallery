@@ -1,7 +1,7 @@
 Desmos Gallery
 ==============
 
-A web application for creating, saving, and browsing mathematical graphs using the Desmos API. Supports both 2D and 3D graphing with tag-based organization.
+A modern web application for creating, saving, and browsing mathematical graphs using the Desmos API. Features both 2D and 3D graphing capabilities with an intuitive interface and comprehensive batch operations.
 
 Features
 --------
@@ -9,16 +9,20 @@ Features
 - **2D & 3D Graph Support**: Create graphs using Desmos 2D and 3D calculators
 - **Interactive Preview**: Real-time graph preview as you type formulas
 - **Tag System**: Organize graphs with custom tags for easy filtering
-- **Gallery View**: Browse all saved graphs in a card-based layout
+- **Gallery View**: Browse all saved graphs in a responsive card-based layout
+- **Batch Selection & Deletion**: Select multiple graphs and delete them in bulk
 - **Persistent Storage**: Graphs are saved to JSON file and persist between server restarts
-- **Responsive Design**: Works on desktop and mobile devices
+- **Modern UI**: Glass morphism design with smooth animations and micro-interactions
+- **Responsive Design**: Fully responsive layout that works on desktop and mobile devices
+- **Auto-fit Layout**: Graph and form automatically fit the screen height
+- **Dense Form Design**: Compact input form with smaller fonts for efficient space usage
 
 Installation
 ------------
 
 1. Clone the repository::
 
-    git clone <repository-url>
+    git clone git@github.com:h3x49r4m/desmos-gallery.git
     cd desmos_gallery
 
 2. Install dependencies::
@@ -51,9 +55,19 @@ Browsing Gallery
 ~~~~~~~~~~~~~~~~
 
 1. Click "Gallery" in the navigation bar
-2. Browse all saved graphs in card view
+2. Browse all saved graphs in card view with mini previews
 3. Click on tags to filter graphs by category
-4. Click on any graph card to see a larger preview
+4. Click on any graph card to see a larger preview in a modal
+
+Batch Operations
+~~~~~~~~~~~~~~~~
+
+1. In the gallery, hover over graph cards to reveal selection checkboxes
+2. Click checkboxes to select multiple graphs
+3. Selected graphs show a blue border and selection count appears
+4. Use "Delete Selected" to remove multiple graphs at once
+5. Confirm deletion in the dialog box
+6. Gallery automatically refreshes after successful deletion
 
 Supported Formulas
 ~~~~~~~~~~~~~~~~~~
@@ -80,7 +94,7 @@ API Endpoints
 Data Storage
 ------------
 
-Graphs are stored in ``data/graphs.json`` in the following format::
+Graphs are stored in ``_data/graphs.json`` in the following format::
 
     {
       "id": "1234567890",
@@ -100,10 +114,23 @@ Run the test suite::
 
     npm test
 
-Tests include:
+Test Coverage:
+- **97 tests** covering all functionality
+- **Server Tests** (33 tests): API endpoints, static file serving, error handling, CORS, security
+- **Data Manager Tests** (23 tests): File operations, validation, sanitization, data integrity
+- **UI Component Tests** (12 tests): GraphManager, GalleryManager, form validation, responsive behavior
+- **Batch Selection UI Tests** (16 tests): Checkbox selection, visual feedback, batch deletion
+- **Batch Delete Tests** (8 tests): Server-side batch operations, error handling, performance
+- **Simple Tests** (5 tests): Basic functionality validation
+
+Test Categories:
 - Data management functionality
 - API endpoint testing
 - Graph validation
+- UI component interactions
+- Batch selection and deletion
+- Error handling and edge cases
+- Performance testing
 
 Development
 -----------
@@ -116,34 +143,75 @@ Project Structure
     desmos_gallery/
     ├── public/                 # Static files
     │   ├── index.html         # Main graph creation page
-    │   ├── gallery.html       # Gallery browsing page
+    │   ├── gallery.html       # Gallery browsing page with batch selection
+    │   ├── css/
+    │   │   └── styles.css     # Modern CSS with glass morphism design
     │   └── src/               # Client-side JavaScript
-    │       ├── graphManager.js
-    │       └── galleryManager.js
+    │       ├── graphManager.js    # Graph creation and management
+    │       └── galleryManager.js  # Gallery display and batch operations
     ├── src/
-    │   └── server.js          # Express server
+    │   └── server.js          # Express server with API endpoints
     ├── tests/                 # Test files
-    ├── data/                  # JSON data storage (created automatically)
+    │   ├── server.test.js           # Server and API tests
+    │   ├── data-manager.test.js     # Data management tests
+    │   ├── ui-components.test.js    # UI component tests
+    │   ├── batch-selection-ui.test.js # Batch selection UI tests
+    │   ├── batch-delete.test.js      # Batch delete API tests
+    │   ├── simple.test.js           # Basic functionality tests
+    │   └── setup.js                 # Test setup utilities
+    ├── _data/                 # JSON data storage (created automatically)
+    │   ├── graphs.json        # Main data file
+    │   └── graphs.json.backup # Backup file
     └── package.json
 
 Scripts
 ~~~~~~~
 
 - ``npm start`` - Start the development server
-- ``npm test`` - Run the test suite
+- ``npm test`` - Run the complete test suite (97 tests)
+- ``npm run test:watch`` - Run tests in watch mode
+- ``npm run test:coverage`` - Run tests with coverage report
 
 Dependencies
 ------------
 
 - **express**: Web server framework
 - **cors**: Cross-origin resource sharing
-- **jest**: Testing framework
+- **jest**: Testing framework with comprehensive test coverage
 - **supertest**: HTTP assertion testing
+- **jsdom**: DOM environment for UI testing
+- **babel**: JavaScript transpiler for modern syntax support
 
 License
 -------
 
-ISC
+Apache 2.0
+
+Additional Features
+------------------
+
+- **Mini Previews**: Graph cards show miniature Desmos previews
+- **Modal View**: Click any graph to see full-size preview
+- **Tag Filtering**: Dynamic filtering by graph tags
+- **Empty State**: Helpful message when no graphs exist
+- **Form Validation**: Real-time validation of graph inputs
+- **Color Picker**: Visual color selection for graph lines
+- **Author Attribution**: Track who created each graph
+- **Timestamps**: Automatic creation timestamps for all graphs
+- **Error Handling**: Comprehensive error handling with user feedback
+- **Security Headers**: Built-in security headers for protection
+
+Technical Details
+-----------------
+
+- **Node.js**: Backend runtime environment
+- **Express.js**: RESTful API server
+- **Desmos API v1.12**: Graphing calculator integration
+- **CSS Grid & Flexbox**: Modern responsive layout
+- **Glass Morphism**: Modern UI design pattern
+- **Debouncing**: Optimized input handling for performance
+- **Set-based Selection**: Efficient batch selection using JavaScript Sets
+- **JSON Persistence**: Simple and reliable data storage
 
 Contributing
 -----------
@@ -151,6 +219,6 @@ Contributing
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests for new functionality
-5. Run the test suite
+4. Add tests for new functionality (aim for 100% test coverage)
+5. Run the test suite (all 97 tests must pass)
 6. Submit a pull request
