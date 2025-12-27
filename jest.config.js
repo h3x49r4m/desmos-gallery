@@ -18,7 +18,8 @@ module.exports = {
                 '<rootDir>/tests/server.test.js', 
                 '<rootDir>/tests/data-manager.test.js', 
                 '<rootDir>/tests/simple.test.js',
-                '<rootDir>/tests/batch-delete.test.js'
+                '<rootDir>/tests/batch-delete.test.js',
+                '<rootDir>/tests/form-layout.test.js'
             ],
             testEnvironment: 'node'
         },
