@@ -2,10 +2,6 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-// Polyfill for TextEncoder/TextDecoder for Node.js environment
-global.TextEncoder = require('util').TextEncoder;
-global.TextDecoder = require('util').TextDecoder;
-
 // Clean up test data before and after tests
 const TEST_DATA_DIR = path.join(__dirname, '../test-data');
 

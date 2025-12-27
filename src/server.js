@@ -7,7 +7,7 @@ const http = require('http');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, '../data/graphs.json');
+const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, '../data/graphs.json');
 
 // Security headers
 app.use((req, res, next) => {
@@ -19,9 +19,28 @@ app.use((req, res, next) => {
 });
 
 // Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    preflightContinue: false
+}));
+app.use(express.json({ 
+    limit: '10mb',
+    strict: false
+}));
+app.use(express.urlencoded({ extended: true }));
+
+// JSON parsing error handler
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).json({ 
+            error: 'Invalid JSON format',
+            message: 'The request body contains invalid JSON'
+        });
+    }
+    next();
+});
 
 // Ensure data directory exists
 async function ensureDataDir() {
@@ -109,6 +128,23 @@ app.get('/api/graphs', async (req, res) => {
 // POST new graph
 app.post('/api/graphs', async (req, res) => {
     try {
+        // Validate required fields
+        const { title, formula, type } = req.body;
+        
+        if (!title || !formula || !type) {
+            return res.status(400).json({ 
+                error: 'Missing required fields',
+                message: 'Title, formula, and type are required'
+            });
+        }
+        
+        if (!['2D', '3D'].includes(type)) {
+            return res.status(400).json({ 
+                error: 'Invalid graph type',
+                message: 'Type must be either 2D or 3D'
+            });
+        }
+        
         const graphs = await loadGraphs();
         const newGraph = {
             ...req.body,
@@ -199,6 +235,9 @@ app.get('/api/tags', async (req, res) => {
         res.status(500).json({ error: 'Failed to load tags' });
     }
 });
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Serve the main page
 app.get('/', (req, res) => {

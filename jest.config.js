@@ -1,19 +1,26 @@
 module.exports = {
     testEnvironment: 'node',
-    testMatch: ['**/tests/**/*.test.js'],
+    testMatch: [
+        '**/tests/**/*.test.js'
+    ],
     collectCoverageFrom: [
         'src/**/*.js',
-        '!src/server.js'
+        'public/src/**/*.js'
     ],
     coverageDirectory: 'coverage',
     coverageReporters: ['text', 'lcov', 'html'],
+    verbose: true,
     setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-    testPathIgnorePatterns: ['<rootDir>/_bak/', '<rootDir>/tests/graphManager.test.js', '<rootDir>/tests/galleryManager.test.js'],
     projects: [
         {
-            displayName: 'node',
-            testEnvironment: 'node',
-            testMatch: ['<rootDir>/tests/api.test.js', '<rootDir>/tests/data-persistence.test.js', '<rootDir>/tests/integration.test.js'],
+            displayName: 'Server Tests',
+            testMatch: ['<rootDir>/tests/server.test.js', '<rootDir>/tests/data-manager.test.js', '<rootDir>/tests/simple.test.js'],
+            testEnvironment: 'node'
+        },
+        {
+            displayName: 'UI Tests',
+            testMatch: ['<rootDir>/tests/ui-components.test.js'],
+            testEnvironment: 'jsdom',
             setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
         }
     ]
