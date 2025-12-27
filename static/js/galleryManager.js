@@ -25,6 +25,7 @@ class GalleryManager {
             }
             
             const allGraphs = await response.json();
+            console.log('Loaded graphs:', allGraphs);
             
             // Ensure we have an array
             if (!Array.isArray(allGraphs)) {
@@ -33,13 +34,19 @@ class GalleryManager {
             } else {
                 // Filter out invalid graphs
                 this.graphs = allGraphs.filter(graph => {
-                    return graph && typeof graph === 'object' && 
+                    const isValid = graph && typeof graph === 'object' && 
                            graph.title && graph.formula && graph.type && 
                            ['2D', '3D'].includes(graph.type);
+                    if (!isValid) {
+                        console.log('Filtered out invalid graph:', graph);
+                    }
+                    return isValid;
                 });
+                console.log('Valid graphs after filtering:', this.graphs);
             }
             
             this.filteredGraphs = [...this.graphs];
+            console.log('Filtered graphs:', this.filteredGraphs);
             this.extractAndRenderTags();
             this.renderGraphs();
         } catch (error) {
@@ -128,16 +135,24 @@ class GalleryManager {
     renderGraphs() {
         const container = document.getElementById('graphsContainer');
         const emptyState = document.getElementById('emptyState');
+        
+        console.log('renderGraphs called, filteredGraphs:', this.filteredGraphs);
+        console.log('container element:', container);
+        console.log('emptyState element:', emptyState);
 
         if (this.filteredGraphs.length === 0) {
+            console.log('No graphs to display, showing empty state');
             container.innerHTML = '';
             emptyState.style.display = 'block';
             this.updateBatchControls();
             return;
         }
 
+        console.log('Rendering', this.filteredGraphs.length, 'graphs');
         emptyState.style.display = 'none';
-        container.innerHTML = this.filteredGraphs.map(graph => this.createGraphCard(graph)).join('');
+        const html = this.filteredGraphs.map(graph => this.createGraphCard(graph)).join('');
+        console.log('Generated HTML:', html.substring(0, 200) + '...');
+        container.innerHTML = html;
 
         // Add click events to graph cards (but not on checkbox)
         container.querySelectorAll('.graph-card').forEach((card, index) => {
@@ -599,10 +614,8 @@ class GalleryManager {
             const date = new Date(this.currentEditingGraph.createdAt).toLocaleDateString();
             ctx.fillText(`By ${this.currentEditingGraph.author} • ${date}`, canvas.width / 2, 85);
             
-            // Add formula
-            ctx.font = '24px Inter, sans-serif';
-            ctx.fillStyle = '#212121';
-            ctx.fillText(this.currentEditingGraph.formula, canvas.width / 2, 120);
+            // Add formula with proper math rendering
+            await this.renderMathFormula(ctx, this.currentEditingGraph.formula, canvas.width / 2, 120);
             
             // Capture the calculator as an image
             const calculatorImage = await this.captureCalculator(calculatorElement);
@@ -696,6 +709,147 @@ class GalleryManager {
                 img.src = canvas.toDataURL();
             }
         });
+    }
+
+    async renderMathFormula(ctx, formula, x, y) {
+        try {
+            // Create a temporary div element for KaTeX rendering
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '-9999px';
+            tempDiv.style.fontSize = '24px';
+            tempDiv.style.color = '#212121';
+            tempDiv.style.fontFamily = 'Inter, sans-serif';
+            document.body.appendChild(tempDiv);
+
+            // Convert Desmos formula to LaTeX format if needed
+            const latexFormula = this.convertToLatex(formula);
+
+            // Render the formula using KaTeX
+            if (typeof katex !== 'undefined') {
+                katex.render(latexFormula, tempDiv, {
+                    throwOnError: false,
+                    displayMode: false,
+                    output: 'html'
+                });
+            } else {
+                // Fallback to plain text if KaTeX is not available
+                tempDiv.textContent = formula;
+            }
+
+            // Wait for rendering to complete
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Create an SVG from the rendered formula
+            const svgString = this.createSVGFromElement(tempDiv);
+            
+            // Create an image from the SVG
+            const img = new Image();
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            await new Promise((resolve, reject) => {
+                img.onload = () => {
+                    // Calculate the actual width of the rendered formula
+                    const bbox = tempDiv.getBoundingClientRect();
+                    const formulaWidth = bbox.width || 400;
+                    
+                    // Center the formula horizontally
+                    const xPos = x - formulaWidth / 2;
+                    
+                    // Draw the formula on canvas
+                    ctx.drawImage(img, xPos, y - 20, formulaWidth, 40);
+                    
+                    // Clean up
+                    URL.revokeObjectURL(url);
+                    document.body.removeChild(tempDiv);
+                    resolve();
+                };
+                img.onerror = () => {
+                    // Fallback to text rendering
+                    ctx.font = '24px Inter, sans-serif';
+                    ctx.fillStyle = '#212121';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(formula, x, y);
+                    URL.revokeObjectURL(url);
+                    document.body.removeChild(tempDiv);
+                    resolve();
+                };
+                img.src = url;
+            });
+
+        } catch (error) {
+            console.error('Error rendering math formula:', error);
+            // Fallback to plain text
+            ctx.font = '24px Inter, sans-serif';
+            ctx.fillStyle = '#212121';
+            ctx.textAlign = 'center';
+            ctx.fillText(formula, x, y);
+        }
+    }
+
+    convertToLatex(formula) {
+        // Convert common Desmos notation to LaTeX
+        let latex = formula;
+        
+        // Handle implicit multiplication (e.g., 2x -> 2x)
+        latex = latex.replace(/(\d)([a-zA-Z])/g, '$1$2');
+        
+        // Handle function notation with parentheses
+        latex = latex.replace(/(\w+)\(/g, '\\$1(');
+        
+        // Handle common functions
+        latex = latex.replace(/sin/g, '\\sin');
+        latex = latex.replace(/cos/g, '\\cos');
+        latex = latex.replace(/tan/g, '\\tan');
+        latex = latex.replace(/log/g, '\\log');
+        latex = latex.replace(/ln/g, '\\ln');
+        latex = latex.replace(/sqrt/g, '\\sqrt');
+        latex = latex.replace(/pi/g, '\\pi');
+        
+        // Handle powers
+        latex = latex.replace(/\^/g, '^');
+        
+        // Handle fractions (simple case)
+        latex = latex.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
+        
+        // Handle subscripts (e.g., x_1)
+        latex = latex.replace(/_([a-zA-Z0-9]+)/g, '_{$1}');
+        
+        // Wrap in display math mode if it contains special symbols
+        if (latex.includes('\\') || latex.includes('^') || latex.includes('_')) {
+            latex = `$${latex}$`;
+        }
+        
+        return latex;
+    }
+
+    createSVGFromElement(element) {
+        const bbox = element.getBoundingClientRect();
+        const width = bbox.width || 400;
+        const height = bbox.height || 40;
+        
+        const svgString = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+                <foreignObject width="100%" height="100%">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="
+                        font-size: 24px;
+                        color: #212121;
+                        font-family: 'Inter', sans-serif;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100%;
+                        width: 100%;
+                    ">
+                        ${element.innerHTML}
+                    </div>
+                </foreignObject>
+            </svg>
+        `;
+        
+        return svgString;
     }
 }
 

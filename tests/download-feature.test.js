@@ -53,7 +53,7 @@ describe('Download Feature Tests', () => {
 
         test('should draw formula on canvas', async () => {
             const jsCode = await fs.readFile(galleryManagerPath, 'utf8');
-            expect(jsCode).toContain('fillText(this.currentEditingGraph.formula');
+            expect(jsCode).toContain('renderMathFormula');
         });
 
         test('should draw watermark', async () => {
@@ -92,6 +92,57 @@ describe('Download Feature Tests', () => {
             const cssPath = path.join(__dirname, '../static/css/styles.css');
             const css = await fs.readFile(cssPath, 'utf8');
             expect(css).toContain('.btn-success');
+        });
+    });
+
+    describe('Math Rendering Implementation', () => {
+        test('should have renderMathFormula method', async () => {
+            const jsCode = await fs.readFile(galleryManagerPath, 'utf8');
+            expect(jsCode).toContain('renderMathFormula(');
+            expect(jsCode).toContain('async renderMathFormula');
+        });
+
+        test('should have convertToLatex method', async () => {
+            const jsCode = await fs.readFile(galleryManagerPath, 'utf8');
+            expect(jsCode).toContain('convertToLatex(');
+            expect(jsCode).toContain('\\sin');
+            expect(jsCode).toContain('\\cos');
+            expect(jsCode).toContain('\\log');
+            expect(jsCode).toContain('\\frac');
+        });
+
+        test('should have createSVGFromElement method', async () => {
+            const jsCode = await fs.readFile(galleryManagerPath, 'utf8');
+            expect(jsCode).toContain('createSVGFromElement(');
+            expect(jsCode).toContain('<svg xmlns=');
+            expect(jsCode).toContain('<foreignObject');
+        });
+
+        test('should convert Desmos functions to LaTeX', async () => {
+            const jsCode = await fs.readFile(galleryManagerPath, 'utf8');
+            expect(jsCode).toContain('sin/g, \'\\\\sin\'');
+            expect(jsCode).toContain('cos/g, \'\\\\cos\'');
+            expect(jsCode).toContain('tan/g, \'\\\\tan\'');
+            expect(jsCode).toContain('sqrt/g, \'\\\\sqrt\'');
+        });
+
+        test('should handle powers and subscripts', async () => {
+            const jsCode = await fs.readFile(galleryManagerPath, 'utf8');
+            expect(jsCode).toContain('_([a-zA-Z0-9]+)/g, \'_{$1}\'');
+            expect(jsCode).toContain('frac{$1}{$2}');
+        });
+
+        test('should have KaTeX integration', async () => {
+            const html = await fs.readFile(galleryPath, 'utf8');
+            expect(html).toContain('katex.min.css');
+            expect(html).toContain('katex.min.js');
+            expect(html).toContain('auto-render.min.js');
+        });
+
+        test('should handle KaTeX rendering fallback', async () => {
+            const jsCode = await fs.readFile(galleryManagerPath, 'utf8');
+            expect(jsCode).toContain('typeof katex !== \'undefined\'');
+            expect(jsCode).toContain('katex.render');
         });
     });
 
