@@ -5,7 +5,7 @@ module.exports = {
     ],
     collectCoverageFrom: [
         'src/**/*.js',
-        'public/src/**/*.js'
+        'static/js/**/*.js'
     ],
     coverageDirectory: 'coverage',
     coverageReporters: ['text', 'lcov', 'html'],
@@ -30,7 +30,8 @@ module.exports = {
                 '<rootDir>/tests/ui-components.test.js',
                 '<rootDir>/tests/batch-selection-ui.test.js',
                 '<rootDir>/tests/modal-edit.test.js',
-                '<rootDir>/tests/type-filter.test.js'
+                '<rootDir>/tests/type-filter.test.js',
+                '<rootDir>/tests/download-feature.test.js'
             ],
             testEnvironment: 'jsdom',
             setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
