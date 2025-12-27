@@ -14,12 +14,20 @@ module.exports = {
     projects: [
         {
             displayName: 'Server Tests',
-            testMatch: ['<rootDir>/tests/server.test.js', '<rootDir>/tests/data-manager.test.js', '<rootDir>/tests/simple.test.js'],
+            testMatch: [
+                '<rootDir>/tests/server.test.js', 
+                '<rootDir>/tests/data-manager.test.js', 
+                '<rootDir>/tests/simple.test.js',
+                '<rootDir>/tests/batch-delete.test.js'
+            ],
             testEnvironment: 'node'
         },
         {
             displayName: 'UI Tests',
-            testMatch: ['<rootDir>/tests/ui-components.test.js'],
+            testMatch: [
+                '<rootDir>/tests/ui-components.test.js',
+                '<rootDir>/tests/batch-selection-ui.test.js'
+            ],
             testEnvironment: 'jsdom',
             setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
         }
