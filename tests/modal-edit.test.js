@@ -7,8 +7,8 @@ const fs = require('fs').promises;
 const path = require('path');
 
 describe('Modal Edit Tests', () => {
-    const galleryPath = path.join(__dirname, '../public/gallery.html');
-    const galleryManagerPath = path.join(__dirname, '../public/src/galleryManager.js');
+    const galleryPath = path.join(__dirname, '../static/gallery.html');
+    const galleryManagerPath = path.join(__dirname, '../static/js/galleryManager.js');
     let htmlContent;
     let jsContent;
 
@@ -181,7 +181,7 @@ describe('Modal Edit Tests', () => {
         });
 
         test('should re-render gallery after update or delete', () => {
-            expect(jsContent).toContain('this.filterByTag(this.currentFilter)');
+            expect(jsContent).toContain('this.applyFilters()');
         });
     });
 });

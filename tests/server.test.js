@@ -85,7 +85,7 @@ describe('Server Tests', () => {
 
         test('should serve JavaScript files', async () => {
             const response = await request(app)
-                .get('/src/graphManager.js')
+                .get('/js/graphManager.js')
                 .expect(200);
             
             expect(response.headers['content-type']).toMatch(/application\/javascript/);

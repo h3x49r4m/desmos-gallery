@@ -236,12 +236,12 @@ app.get('/api/tags', async (req, res) => {
     }
 });
 
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve static files from static directory
+app.use(express.static(path.join(__dirname, '../static')));
 
-// Serve the main page
+// API Routes
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+    res.sendFile(path.join(__dirname, '../static/index.html'));
 });
 
 // Error handling middleware

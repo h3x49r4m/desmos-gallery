@@ -7,7 +7,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 describe('Form Layout Tests', () => {
-    const indexPath = path.join(__dirname, '../public/index.html');
+    const indexPath = path.join(__dirname, '../static/index.html');
     let htmlContent;
 
     beforeAll(async () => {

@@ -7,7 +7,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 describe('Modal Tag Bug Test', () => {
-    const galleryManagerPath = path.join(__dirname, '../public/src/galleryManager.js');
+    const galleryManagerPath = path.join(__dirname, '../static/js/galleryManager.js');
     let jsContent;
 
     beforeAll(async () => {

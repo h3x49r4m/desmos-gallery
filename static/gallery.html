@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desmos Gallery - Browse Graphs</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="calculator.js"></script>
+    <script src="calculator3d.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="/">Desmos Gallery</a>
+            <ul class="navbar-nav">
+                <li><a class="nav-link" href="/">Create</a></li>
+                <li><a class="nav-link active" href="/gallery.html">Gallery</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="gallery-controls">
+            <div class="filter-section">
+                <div class="type-filters">
+                    <h3>📊 Filter by Type</h3>
+                    <div id="typeFilters">
+                        <span class="filter-tag active" data-type="all">All</span>
+                        <span class="filter-tag" data-type="2D">2D Graphs</span>
+                        <span class="filter-tag" data-type="3D">3D Graphs</span>
+                    </div>
+                </div>
+                <div class="tag-filters">
+                    <h3>🏷️ Filter by Tags</h3>
+                    <div id="tagFilters"></div>
+                </div>
+            </div>
+            <div class="batch-controls" id="batchControls" style="display: none;">
+                <div class="batch-info">
+                    <span id="selectedCount">0</span> selected
+                </div>
+                <button class="btn btn-danger" id="deleteSelectedBtn">
+                    🗑️ Delete Selected
+                </button>
+                <button class="btn btn-secondary" id="clearSelectionBtn">
+                    ✖ Clear Selection
+                </button>
+            </div>
+        </div>
+
+        <div id="graphsContainer" class="graphs-container">
+            <!-- Graph cards will be inserted here -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>📊 No graphs found</h3>
+            <p>Start creating some amazing graphs to see them here!</p>
+            <a href="/" class="btn btn-primary">✨ Create Your First Graph</a>
+        </div>
+    </div>
+
+    <!-- Graph Modal -->
+    <div class="modal" id="graphModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Graph Details</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-layout">
+                    <div class="modal-left">
+                        <div class="modal-calculator" id="modalCalculator"></div>
+                    </div>
+                    <div class="modal-right">
+                        <form id="modalEditForm">
+                            <div class="form-group">
+                                <label for="modalTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="modalTitleInput" placeholder="Enter graph title">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="modalAuthor" class="form-label">Author</label>
+                                <input type="text" class="form-control" id="modalAuthorInput" placeholder="Enter author name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="modalFormula" class="form-label">Formula</label>
+                                <textarea class="form-control" id="modalFormulaInput" placeholder="Enter formula" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="modalLineColor" class="form-label">Line Color</label>
+                                <div class="color-picker-wrapper">
+                                    <input type="color" class="color-picker" id="modalLineColorInput">
+                                    <span class="color-preview" id="modalColorPreview">#2196F3</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="modalTagInput" class="form-label">Tags</label>
+                                <div class="tag-input-wrapper">
+                                    <input type="text" class="form-control tag-input" id="modalTagInput" placeholder="Add tags (press Enter)">
+                                    <span class="tag-hint">Press Enter</span>
+                                </div>
+                                <div id="modalTagContainer" class="tag-container"></div>
+                            </div>
+                            
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="modalUpdateBtn">Update Graph</button>
+                                <button type="button" class="btn btn-danger" id="modalDeleteBtn">Delete</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/galleryManager.js"></script>
+</body>
+</html>
