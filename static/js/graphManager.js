@@ -27,7 +27,7 @@ class GraphManager {
                 keypad: false,
                 expressions: false,
                 settingsMenu: false,
-                zoomButtons: false,
+                zoomButtons: true,
                 expressionsTopbar: false,
                 border: false,
                 autosize: true
@@ -36,7 +36,7 @@ class GraphManager {
             this.currentCalculator = Desmos.Calculator3D(calculatorElement, {
                 expressions: false,
                 settingsMenu: false,
-                zoomButtons: false,
+                zoomButtons: true,
                 expressionsTopbar: false,
                 border: false,
                 autosize: true

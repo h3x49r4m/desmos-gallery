@@ -351,7 +351,7 @@ class GalleryManager {
                     keypad: false,
                     expressions: false,
                     settingsMenu: false,
-                    zoomButtons: false,
+                    zoomButtons: true,
                     expressionsTopbar: false,
                     border: false
                 });
@@ -359,7 +359,7 @@ class GalleryManager {
                 this.modalCalculator = Desmos.Calculator3D(modalCalculatorElement, {
                     expressions: false,
                     settingsMenu: false,
-                    zoomButtons: false,
+                    zoomButtons: true,
                     expressionsTopbar: false,
                     border: false
                 });
