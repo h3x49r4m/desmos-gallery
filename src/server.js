@@ -7,7 +7,7 @@ const http = require('http');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, '../_data/graphs.json');
+const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, '../data/graphs.json');
 
 // Security headers
 app.use((req, res, next) => {

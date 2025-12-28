@@ -182,9 +182,6 @@ temp/
 logs
 *.log
 
-# Data files
-#_data/
-#*.json
 
 # IDE files
 .vscode/

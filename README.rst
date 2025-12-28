@@ -98,7 +98,7 @@ API Endpoints
 Data Storage
 ------------
 
-Graphs are stored in ``_data/graphs.json`` in the following format::
+Graphs are stored in ``data/graphs.json`` in the following format::
 
     {
       "id": "1234567890",
@@ -174,7 +174,7 @@ Project Structure
     │   ├── type-filter.test.js       # Type filtering tests
     │   ├── simple.test.js           # Basic functionality tests
     │   └── setup.js                 # Test setup utilities
-    ├── _data/                 # JSON data storage (created automatically)
+    ├── data/                 # JSON data storage (created automatically)
     │   ├── graphs.json        # Main data file
     │   └── graphs.json.backup # Backup file
     └── package.json
