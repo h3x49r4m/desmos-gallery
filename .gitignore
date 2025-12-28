@@ -183,8 +183,8 @@ logs
 *.log
 
 # Data files
-_data/
-*.json
+#_data/
+#*.json
 
 # IDE files
 .vscode/
