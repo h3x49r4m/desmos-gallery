@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desmos Gallery - Create Graphs</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <script src="calculator.js"></script>
+    <script src="calculator3d.js"></script>
+    <script>window.ENV = 'prod';</script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="index.html">Desmos Gallery</a>
+            <ul class="navbar-nav">
+                <li><a class="nav-link active" href="index.html">Create</a></li>
+                <li><a class="nav-link" href="gallery.html">Gallery</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="graph-section">
+                    <div class="graph-container">
+                        <div id="calculator"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-section">
+                    <div class="form-header">
+                        <h2>Create Your Graph</h2>
+                        <p>Design beautiful mathematical visualizations</p>
+                    </div>
+                    
+                    <form id="graphForm">
+                        <div class="form-group">
+                            <label for="formula" class="form-label">Formula</label>
+                            <textarea class="form-control" id="formula" placeholder="Enter formula (e.g., x^2, sin(x), etc.)" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Graph Type</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" name="graphType" id="2D" value="2D" checked>
+                                    <label for="2D">📊 2D Graph</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" name="graphType" id="3D" value="3D">
+                                    <label for="3D">🎲 3D Graph</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lineColor" class="form-label">Line Color</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" class="color-picker" id="lineColor" value="#2196F3">
+                                <span class="color-preview">#2196F3</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary btn-block" id="previewBtn">
+                                👁️ Preview
+                            </button>
+                        </div>
+
+                        <div class="form-group" style="display: none;" data-env="dev"
+                            <label for="tagInput" class="form-label">Tags</label>
+                            <div class="tag-input-wrapper">
+                                <input type="text" class="form-control tag-input" id="tagInput" placeholder="Add tags (press Enter)">
+                                <span class="tag-hint">Press Enter</span>
+                            </div>
+                            <div id="tagContainer" class="tag-container"></div>
+                        </div>
+
+                        <div class="form-group" style="display: none;" data-env="dev"
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" placeholder="Give your graph a name" required>
+                        </div>
+
+                        <div class="form-group" style="display: none;" data-env="dev"
+                            <label for="author" class="form-label">Author</label>
+                            <input type="text" class="form-control" id="author" placeholder="Your name">
+                        </div>
+
+                        <div class="form-group" style="display: none;" data-env="dev"
+                            <button type="submit" class="btn btn-success btn-block">
+                                💾 Save Graph
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/graphManager.js"></script>
+</body>
+</html>
