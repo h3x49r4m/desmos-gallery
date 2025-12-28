@@ -334,10 +334,14 @@ describe('Server Tests', () => {
                     .expect(404);
             });
 
-            test('should return 404 when deleting non-existent graph', async () => {
-                await request(app)
+            test('should return 200 when deleting non-existent graph (idempotent)', async () => {
+                const response = await request(app)
                     .delete('/api/graphs/non-existent-id')
-                    .expect(404);
+                    .expect(200);
+                
+                expect(response.body).toHaveProperty('message');
+                expect(response.body.message).toContain('already deleted');
+                expect(response.body).toHaveProperty('id', 'non-existent-id');
             });
         });
 

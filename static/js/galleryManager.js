@@ -747,17 +747,50 @@ class GalleryManager {
         try {
             // Use the modal calculator to get the screenshot
             const calculatorImage = await new Promise((resolve, reject) => {
-                // Try asyncScreenshot first
-                if (this.modalCalculator.asyncScreenshot) {
-                    this.modalCalculator.asyncScreenshot({
-                        width: 800,
-                        height: 500,
-                        targetPixelRatio: 2
-                    }, (dataUrl) => {
-                        if (dataUrl) {
-                            const img = new Image();
-                            img.onload = () => resolve(img);
-                            img.onerror = () => {
+                // For 3D graphs, use screenshot() directly since asyncScreenshot is not supported
+                if (this.currentEditingGraph.type === '3D') {
+                    try {
+                        const data = this.modalCalculator.screenshot({
+                            width: 800,
+                            height: 500,
+                            targetPixelRatio: 2
+                        });
+                        const img = new Image();
+                        img.onload = () => resolve(img);
+                        img.onerror = () => reject(new Error('Failed to load calculator screenshot'));
+                        img.src = data;
+                    } catch (e) {
+                        reject(new Error('Failed to capture 3D calculator screenshot'));
+                    }
+                } else {
+                    // For 2D graphs, try asyncScreenshot first, then fallback to screenshot
+                    if (this.modalCalculator.asyncScreenshot) {
+                        this.modalCalculator.asyncScreenshot({
+                            width: 800,
+                            height: 500,
+                            targetPixelRatio: 2
+                        }, (dataUrl) => {
+                            if (dataUrl) {
+                                const img = new Image();
+                                img.onload = () => resolve(img);
+                                img.onerror = () => {
+                                    // Fallback to screenshot method
+                                    try {
+                                        const data = this.modalCalculator.screenshot({
+                                            width: 800,
+                                            height: 500,
+                                            targetPixelRatio: 2
+                                        });
+                                        const img2 = new Image();
+                                        img2.onload = () => resolve(img2);
+                                        img2.onerror = () => reject(new Error('Failed to load calculator screenshot'));
+                                        img2.src = data;
+                                    } catch (e) {
+                                        reject(new Error('Failed to capture calculator screenshot'));
+                                    }
+                                };
+                                img.src = dataUrl;
+                            } else {
                                 // Fallback to screenshot method
                                 try {
                                     const data = this.modalCalculator.screenshot({
@@ -772,39 +805,23 @@ class GalleryManager {
                                 } catch (e) {
                                     reject(new Error('Failed to capture calculator screenshot'));
                                 }
-                            };
-                            img.src = dataUrl;
-                        } else {
-                            // Fallback to screenshot method
-                            try {
-                                const data = this.modalCalculator.screenshot({
-                                    width: 800,
-                                    height: 500,
-                                    targetPixelRatio: 2
-                                });
-                                const img2 = new Image();
-                                img2.onload = () => resolve(img2);
-                                img2.onerror = () => reject(new Error('Failed to load calculator screenshot'));
-                                img2.src = data;
-                            } catch (e) {
-                                reject(new Error('Failed to capture calculator screenshot'));
                             }
-                        }
-                    });
-                } else {
-                    // Use regular screenshot
-                    try {
-                        const data = this.modalCalculator.screenshot({
-                            width: 800,
-                            height: 500,
-                            targetPixelRatio: 2
                         });
-                        const img = new Image();
-                        img.onload = () => resolve(img);
-                        img.onerror = () => reject(new Error('Failed to load calculator screenshot'));
-                        img.src = data;
-                    } catch (e) {
-                        reject(new Error('Failed to capture calculator screenshot'));
+                    } else {
+                        // Use regular screenshot
+                        try {
+                            const data = this.modalCalculator.screenshot({
+                                width: 800,
+                                height: 500,
+                                targetPixelRatio: 2
+                            });
+                            const img = new Image();
+                            img.onload = () => resolve(img);
+                            img.onerror = () => reject(new Error('Failed to load calculator screenshot'));
+                            img.src = data;
+                        } catch (e) {
+                            reject(new Error('Failed to capture calculator screenshot'));
+                        }
                     }
                 }
             });

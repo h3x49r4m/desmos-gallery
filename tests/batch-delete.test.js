@@ -52,8 +52,10 @@ describe('Batch Selection and Deletion Tests', () => {
             const response = await request(app)
                 .delete('/api/graphs/non-existent-id-12345');
             
-            // Should return either 404 (not found) or 500 (server error)
-            expect([404, 500]).toContain(response.status);
+            // Should return 200 (idempotent deletion) - graph already deleted or never existed
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('message');
+            expect(response.body.message).toContain('already deleted');
         });
 
         test('should handle concurrent deletion requests', async () => {

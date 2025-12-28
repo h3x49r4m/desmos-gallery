@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "1766954296345",
+    "title": "test",
+    "formula": "x^2 + y^2 = z",
+    "type": "3D",
+    "tags": [],
+    "author": "",
+    "lineColor": "#2196f3",
+    "createdAt": "2025-12-28T20:38:16.345Z"
+  }
+]
