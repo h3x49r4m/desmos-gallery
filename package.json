@@ -1,6 +1,6 @@
 {
   "name": "Desmos Gallery",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A modern web application for creating, saving, and browsing mathematical graphs with batch operations",
   "main": "src/server.js",
   "scripts": {
