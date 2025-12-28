@@ -47,9 +47,24 @@ class GitHubPagesBuilder {
     async cleanPublicDir() {
         console.log('🧹 Cleaning _public directory...');
         try {
-            await fs.rm(this.publicDir, { recursive: true });
+            // Check if directory exists
+            const entries = await fs.readdir(this.publicDir, { withFileTypes: true });
+            
+            // Remove all files and directories except .git
+            for (const entry of entries) {
+                if (entry.name !== '.git') {
+                    const entryPath = path.join(this.publicDir, entry.name);
+                    if (entry.isDirectory()) {
+                        await fs.rm(entryPath, { recursive: true });
+                    } else {
+                        await fs.unlink(entryPath);
+                    }
+                }
+            }
+            console.log('  ✓ Cleaned _public directory (preserved .git)');
         } catch (error) {
             // Directory doesn't exist, that's fine
+            console.log('  ✓ _public directory does not exist yet');
         }
     }
 
