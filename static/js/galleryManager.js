@@ -900,7 +900,7 @@ class GalleryManager {
             // Set smaller font size for all metadata elements
             ctx.font = '18px Inter, sans-serif';  // Smaller font size for metadata
             
-            // Draw left-aligned metadata (Title • Author • Date)
+            // Draw left-aligned metadata (Title • Author • Date) - conditional author display
             ctx.textAlign = 'left';
             let currentX = leftMargin;
             
@@ -910,23 +910,32 @@ class GalleryManager {
             ctx.fillText(this.currentEditingGraph.title, currentX, metadataY);
             currentX += ctx.measureText(this.currentEditingGraph.title).width;
             
-            // First bullet separator
-            ctx.font = '18px Inter, sans-serif';
-            ctx.fillStyle = '#9E9E9E';  // Light gray color
-            ctx.fillText(' • ', currentX, metadataY);
-            currentX += ctx.measureText(' • ').width;
-            
-            // Author (normal weight, light gray)
-            ctx.font = '18px Inter, sans-serif';
-            ctx.fillStyle = '#9E9E9E';  // Light gray color
-            ctx.fillText(this.currentEditingGraph.author, currentX, metadataY);
-            currentX += ctx.measureText(this.currentEditingGraph.author).width;
-            
-            // Second bullet separator
-            ctx.font = '18px Inter, sans-serif';
-            ctx.fillStyle = '#9E9E9E';  // Light gray color
-            ctx.fillText(' • ', currentX, metadataY);
-            currentX += ctx.measureText(' • ').width;
+            // Conditionally add author and separators only if author exists
+            if (this.currentEditingGraph.author && this.currentEditingGraph.author.trim()) {
+                // First bullet separator
+                ctx.font = '18px Inter, sans-serif';
+                ctx.fillStyle = '#9E9E9E';  // Light gray color
+                ctx.fillText(' • ', currentX, metadataY);
+                currentX += ctx.measureText(' • ').width;
+                
+                // Author (normal weight, light gray)
+                ctx.font = '18px Inter, sans-serif';
+                ctx.fillStyle = '#9E9E9E';  // Light gray color
+                ctx.fillText(this.currentEditingGraph.author, currentX, metadataY);
+                currentX += ctx.measureText(this.currentEditingGraph.author).width;
+                
+                // Second bullet separator
+                ctx.font = '18px Inter, sans-serif';
+                ctx.fillStyle = '#9E9E9E';  // Light gray color
+                ctx.fillText(' • ', currentX, metadataY);
+                currentX += ctx.measureText(' • ').width;
+            } else {
+                // No author, just add one bullet separator between title and date
+                ctx.font = '18px Inter, sans-serif';
+                ctx.fillStyle = '#9E9E9E';  // Light gray color
+                ctx.fillText(' • ', currentX, metadataY);
+                currentX += ctx.measureText(' • ').width;
+            }
             
             // Date (normal weight, light gray)
             ctx.font = '18px Inter, sans-serif';
