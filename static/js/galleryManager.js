@@ -227,28 +227,165 @@ class GalleryManager {
     async deleteSelected() {
         if (this.selectedGraphs.size === 0) return;
         
-        const confirmed = confirm(`Are you sure you want to delete ${this.selectedGraphs.size} graph(s)?`);
+        const count = this.selectedGraphs.size;
+        const confirmed = await this.showDeleteConfirm(count);
         if (!confirmed) return;
         
-        const deletePromises = Array.from(this.selectedGraphs).map(graphId => 
-            fetch(`/api/graphs/${graphId}`, { method: 'DELETE' })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to delete graph ${graphId}: ${response.status}`);
-                    }
-                    return response.json();
-                })
-        );
+        const selectedIds = Array.from(this.selectedGraphs);
+        let successCount = 0;
+        let failureCount = 0;
+        const failures = [];
         
-        try {
-            const results = await Promise.all(deletePromises);
-            console.log(`Successfully deleted ${results.length} graphs`);
-            this.clearSelection();
-            await this.loadGraphs();
-        } catch (error) {
-            console.error('Error deleting graphs:', error);
-            alert(`Error deleting graphs: ${error.message}`);
+        // Delete each graph individually to handle partial failures
+        for (const graphId of selectedIds) {
+            try {
+                const response = await fetch(`/api/graphs/${graphId}`, { method: 'DELETE' });
+                
+                if (response.ok) {
+                    successCount++;
+                    // Remove from selection immediately after successful deletion
+                    this.selectedGraphs.delete(graphId);
+                } else if (response.status === 404) {
+                    // Graph doesn't exist, consider it successful
+                    console.log(`Graph ${graphId} was already deleted`);
+                    successCount++;
+                    this.selectedGraphs.delete(graphId);
+                } else {
+                    failureCount++;
+                    failures.push(`Graph ${graphId}: HTTP ${response.status}`);
+                }
+            } catch (error) {
+                failureCount++;
+                failures.push(`Graph ${graphId}: ${error.message}`);
+            }
         }
+        
+        // Show pretty result message
+        this.showDeleteResult(successCount, failureCount, failures);
+        
+        // Clear selection and reload graphs
+        this.clearSelection();
+        await this.loadGraphs();
+    }
+
+    showDeleteConfirm(count) {
+        return new Promise((resolve) => {
+            // Remove any existing confirm dialogs
+            const existingConfirm = document.querySelector('.delete-confirm-modal');
+            if (existingConfirm) {
+                existingConfirm.remove();
+            }
+            
+            // Create confirm modal
+            const modal = document.createElement('div');
+            modal.className = 'delete-confirm-modal';
+            modal.innerHTML = `
+                <div class="delete-confirm-backdrop"></div>
+                <div class="delete-confirm-content">
+                    <div class="delete-confirm-icon">🗑️</div>
+                    <div class="delete-confirm-header">
+                        <h3>Delete ${count} Graph${count > 1 ? 's' : ''}?</h3>
+                    </div>
+                    <div class="delete-confirm-body">
+                        <p>This action cannot be undone.</p>
+                        <p class="delete-confirm-detail">Are you sure you want to permanently delete the selected ${count === 1 ? 'graph' : 'graphs'}?</p>
+                    </div>
+                    <div class="delete-confirm-actions">
+                        <button class="btn btn-secondary delete-confirm-cancel">Cancel</button>
+                        <button class="btn btn-danger delete-confirm-confirm">Delete ${count} Graph${count > 1 ? 's' : ''}</button>
+                    </div>
+                </div>
+            `;
+            
+            // Add to page
+            document.body.appendChild(modal);
+            
+            // Add event listeners
+            const cancelBtn = modal.querySelector('.delete-confirm-cancel');
+            const confirmBtn = modal.querySelector('.delete-confirm-confirm');
+            const backdrop = modal.querySelector('.delete-confirm-backdrop');
+            
+            const closeModal = (result) => {
+                modal.remove();
+                resolve(result);
+            };
+            
+            cancelBtn.addEventListener('click', () => closeModal(false));
+            confirmBtn.addEventListener('click', () => closeModal(true));
+            backdrop.addEventListener('click', () => closeModal(false));
+            
+            // Close on Escape key
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    document.removeEventListener('keydown', handleEscape);
+                    closeModal(false);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+            
+            // Auto-focus on cancel button for better UX
+            cancelBtn.focus();
+        });
+    }
+
+    showDeleteResult(successCount, failureCount, failures) {
+        if (failureCount === 0 && successCount === 0) {
+            // No graphs to delete
+            return;
+        }
+        
+        let title, message, type;
+        
+        if (failureCount === 0) {
+            // Complete success
+            title = '✅ Deletion Complete';
+            message = `Successfully deleted ${successCount} graph${successCount > 1 ? 's' : ''}.`;
+            type = 'success';
+        } else if (successCount === 0) {
+            // Complete failure
+            title = '❌ Deletion Failed';
+            message = `Could not delete any of the ${failureCount} selected graph${failureCount > 1 ? 's' : ''}.\n\n${failures.join('\n')}`;
+            type = 'error';
+        } else {
+            // Partial success
+            title = '⚠️ Partial Deletion';
+            message = `Successfully deleted ${successCount} of ${successCount + failureCount} graph${successCount + failureCount > 1 ? 's' : ''}.\n\n${failureCount} graph${failureCount > 1 ? 's' : ''} could not be deleted:\n${failures.join('\n')}`;
+            type = 'warning';
+        }
+        
+        // Create a custom alert instead of using browser alert
+        this.showCustomAlert(title, message, type);
+    }
+
+    showCustomAlert(title, message, type) {
+        // Remove any existing alerts
+        const existingAlert = document.querySelector('.custom-alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        // Create alert container
+        const alert = document.createElement('div');
+        alert.className = `custom-alert custom-alert-${type}`;
+        alert.innerHTML = `
+            <div class="custom-alert-content">
+                <div class="custom-alert-header">
+                    <span class="custom-alert-title">${title}</span>
+                    <button class="custom-alert-close" onclick="this.closest('.custom-alert').remove()">×</button>
+                </div>
+                <div class="custom-alert-message">${message}</div>
+            </div>
+        `;
+        
+        // Add to page
+        document.body.appendChild(alert);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 5000);
     }
 
     createGraphCard(graph) {
@@ -263,6 +400,11 @@ class GalleryManager {
             <div class="graph-card ${isSelected ? 'selected' : ''}" data-graph-id="${graph.id}">
                 <div class="selection-checkbox" onclick="galleryManager.toggleSelection('${graph.id}', event)"></div>
                 <div class="graph-preview" id="preview-${graph.id}"></div>
+                <div class="graph-formula" id="formula-${graph.id}">
+                    <div class="formula-content">
+                        ${this.renderFormula(graph.formula)}
+                    </div>
+                </div>
                 <div class="graph-details">
                     <div class="graph-title">${graph.title}</div>
                     <div class="graph-meta">
@@ -375,6 +517,21 @@ class GalleryManager {
         } catch (error) {
             console.error('Error showing graph modal:', error);
             this.showError('Failed to load graph preview');
+        }
+    }
+
+    renderFormula(formula) {
+        try {
+            // Use KaTeX to render the formula
+            return katex.renderToString(formula, {
+                throwOnError: false,
+                displayMode: true,
+                output: 'html'
+            });
+        } catch (error) {
+            console.error('Error rendering formula with KaTeX:', error);
+            // Fallback to plain text if KaTeX fails
+            return `<div class="formula-fallback">${formula}</div>`;
         }
     }
 

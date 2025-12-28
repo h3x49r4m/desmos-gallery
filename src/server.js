@@ -57,7 +57,41 @@ async function loadGraphs() {
     try {
         await ensureDataDir();
         const data = await fs.readFile(DATA_FILE, 'utf8');
-        return JSON.parse(data);
+        
+        // Handle empty or whitespace-only files
+        if (!data || data.trim() === '') {
+            return [];
+        }
+        
+        try {
+            return JSON.parse(data);
+        } catch (parseError) {
+            console.error('JSON parsing error, attempting to recover:', parseError.message);
+            
+            // Try to extract valid JSON from corrupted file
+            const trimmedData = data.trim();
+            if (trimmedData.startsWith('[') && trimmedData.endsWith(']')) {
+                try {
+                    // Find the last valid closing bracket
+                    const lastBracketIndex = trimmedData.lastIndexOf(']');
+                    if (lastBracketIndex > 0) {
+                        const validJson = trimmedData.substring(0, lastBracketIndex + 1);
+                        const parsed = JSON.parse(validJson);
+                        console.log('Successfully recovered corrupted JSON file');
+                        // Save the recovered data
+                        await saveGraphs(parsed);
+                        return parsed;
+                    }
+                } catch (recoveryError) {
+                    console.error('Failed to recover JSON file:', recoveryError.message);
+                }
+            }
+            
+            // If recovery fails, return empty array and reset file
+            console.log('Resetting corrupted graphs file to empty array');
+            await saveGraphs([]);
+            return [];
+        }
     } catch (error) {
         if (error.code === 'ENOENT') {
             // File doesn't exist, return empty array
@@ -70,7 +104,28 @@ async function loadGraphs() {
 // Save graphs to JSON file
 async function saveGraphs(graphs) {
     await ensureDataDir();
-    await fs.writeFile(DATA_FILE, JSON.stringify(graphs, null, 2), 'utf8');
+    
+    // Validate graphs array before saving
+    if (!Array.isArray(graphs)) {
+        throw new Error('Graphs data must be an array');
+    }
+    
+    const jsonData = JSON.stringify(graphs, null, 2);
+    
+    // Write to temporary file first, then rename to prevent corruption
+    const tempFile = DATA_FILE + '.tmp';
+    try {
+        await fs.writeFile(tempFile, jsonData, 'utf8');
+        await fs.rename(tempFile, DATA_FILE);
+    } catch (error) {
+        // Clean up temp file if rename fails
+        try {
+            await fs.unlink(tempFile);
+        } catch (unlinkError) {
+            // Ignore unlink errors
+        }
+        throw error;
+    }
 }
 
 // Proxy Desmos API scripts to avoid CORS issues
@@ -206,7 +261,8 @@ app.delete('/api/graphs/:id', async (req, res) => {
         const index = graphs.findIndex(g => g.id === req.params.id);
         
         if (index === -1) {
-            return res.status(404).json({ error: 'Graph not found' });
+            // Return success for idempotent deletion - graph is already gone
+            return res.status(200).json({ message: 'Graph already deleted or never existed', id: req.params.id });
         }
         
         const deletedGraph = graphs.splice(index, 1)[0];

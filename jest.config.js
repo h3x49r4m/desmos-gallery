@@ -31,7 +31,8 @@ module.exports = {
                 '<rootDir>/tests/batch-selection-ui.test.js',
                 '<rootDir>/tests/modal-edit.test.js',
                 '<rootDir>/tests/type-filter.test.js',
-                '<rootDir>/tests/download-feature.test.js'
+                '<rootDir>/tests/download-feature.test.js',
+                '<rootDir>/tests/formula-rendering.test.js'
             ],
             testEnvironment: 'jsdom',
             setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
