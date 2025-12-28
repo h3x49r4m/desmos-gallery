@@ -186,6 +186,7 @@ Scripts
 - ``npm test`` - Run the complete test suite (211 tests)
 - ``npm run test:watch`` - Run tests in watch mode
 - ``npm run test:coverage`` - Run tests with coverage report
+- ``npm run build:github-pages`` - Build static site for GitHub Pages deployment
 
 Dependencies
 ------------
@@ -232,6 +233,48 @@ Technical Details
 - **Debouncing**: Optimized input handling for performance
 - **Set-based Selection**: Efficient batch selection using JavaScript Sets
 - **JSON Persistence**: Simple and reliable data storage
+
+GitHub Pages Deployment
+------------------------
+
+To deploy the application as a static site on GitHub Pages:
+
+1. Build the static site::
+
+    npm run build:github-pages
+
+2. The static site will be generated in the ``_public/`` directory
+3. Deploy the ``_public/`` directory to GitHub Pages using one of these methods:
+
+   **Method 1: Using gh-pages branch**
+   
+   ::
+
+       git subtree push --prefix _public origin gh-pages
+
+   **Method 2: Using GitHub Actions**
+   
+   Create ``.github/workflows/deploy.yml`` with GitHub Actions workflow
+
+   **Method 3: Manual deployment**
+   
+   - Copy contents of ``_public/`` to your repository root
+   - Enable GitHub Pages in repository settings
+   - Select source as "Deploy from a branch"
+
+Features in Static Deployment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ✅ Gallery browsing with all graphs
+- ✅ Graph filtering by tags and type
+- ✅ Graph viewing in modal
+- ✅ Responsive design
+- ✅ All static assets (CSS, JS, images)
+- ❌ Graph creation (requires server)
+- ❌ Graph editing/deletion (requires server)
+- ❌ Real-time graph preview (requires server)
+
+The static deployment is perfect for showcasing existing graphs without the need for a server.
 
 Contributing
 -----------
