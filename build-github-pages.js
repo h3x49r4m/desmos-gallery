@@ -85,13 +85,29 @@ class GitHubPagesBuilder {
         
         // Copy graphs.json if it exists
         const graphsFile = path.join(this.dataDir, 'graphs.json');
+        const publicGraphsFile = path.join(publicDataDir, 'graphs.json');
+        
         try {
-            await fs.copyFile(graphsFile, path.join(publicDataDir, 'graphs.json'));
-            console.log('  ✓ Copied graphs.json');
+            await fs.copyFile(graphsFile, publicGraphsFile);
+            
+            // Check if the copied file is empty, and if so, add sample data
+            const data = await fs.readFile(publicGraphsFile, 'utf8');
+            const graphs = JSON.parse(data);
+            
+            if (!Array.isArray(graphs) || graphs.length === 0) {
+                console.log('  ⚠️ graphs.json is empty, adding sample data...');
+                const sampleGraphs = this.getSampleGraphs();
+                await fs.writeFile(publicGraphsFile, JSON.stringify(sampleGraphs, null, 2));
+                console.log(`  ✓ Added ${sampleGraphs.length} sample graphs`);
+            } else {
+                console.log(`  ✓ Copied graphs.json with ${graphs.length} graphs`);
+            }
         } catch (error) {
-            // Create empty graphs.json if it doesn't exist
-            await fs.writeFile(path.join(publicDataDir, 'graphs.json'), '[]');
-            console.log('  ✓ Created empty graphs.json');
+            // Create graphs.json with sample data if it doesn't exist
+            console.log('  ⚠️ graphs.json not found, creating with sample data...');
+            const sampleGraphs = this.getSampleGraphs();
+            await fs.writeFile(publicGraphsFile, JSON.stringify(sampleGraphs, null, 2));
+            console.log(`  ✓ Created graphs.json with ${sampleGraphs.length} sample graphs`);
         }
     }
 
@@ -169,6 +185,92 @@ class GitHubPagesBuilder {
     async createNoJekyllFile() {
         console.log('📄 Creating .nojekyll file...');
         await fs.writeFile(path.join(this.publicDir, '.nojekyll'), '');
+    }
+
+    getSampleGraphs() {
+        const now = new Date().toISOString();
+        return [
+            {
+                id: 'sample-1',
+                title: 'Parabola',
+                formula: 'y=x^2',
+                type: '2D',
+                author: 'Desmos Gallery',
+                lineColor: '#2196F3',
+                tags: ['parabola', 'quadratic', 'basic'],
+                createdAt: now
+            },
+            {
+                id: 'sample-2',
+                title: 'Sine Wave',
+                formula: 'y=\\sin(x)',
+                type: '2D',
+                author: 'Desmos Gallery',
+                lineColor: '#4CAF50',
+                tags: ['trigonometry', 'wave', 'periodic'],
+                createdAt: now
+            },
+            {
+                id: 'sample-3',
+                title: 'Circle',
+                formula: 'x^2+y^2=25',
+                type: '2D',
+                author: 'Desmos Gallery',
+                lineColor: '#FF5722',
+                tags: ['circle', 'conic', 'geometry'],
+                createdAt: now
+            },
+            {
+                id: 'sample-4',
+                title: 'Exponential Growth',
+                formula: 'y=e^x',
+                type: '2D',
+                author: 'Desmos Gallery',
+                lineColor: '#9C27B0',
+                tags: ['exponential', 'growth', 'function'],
+                createdAt: now
+            },
+            {
+                id: 'sample-5',
+                title: '3D Surface',
+                formula: 'z=\\sin(x)\\cos(y)',
+                type: '3D',
+                author: 'Desmos Gallery',
+                lineColor: '#00BCD4',
+                tags: ['3d', 'surface', 'trigonometry'],
+                createdAt: now
+            },
+            {
+                id: 'sample-6',
+                title: 'Logarithmic',
+                formula: 'y=\\ln(x)',
+                type: '2D',
+                author: 'Desmos Gallery',
+                lineColor: '#FF9800',
+                tags: ['logarithm', 'function', 'inverse'],
+                createdAt: now
+            },
+            {
+                id: 'sample-7',
+                title: '3D Spiral',
+                formula: 'x=\\cos(t), y=\\sin(t), z=t/10',
+                type: '3D',
+                author: 'Desmos Gallery',
+                lineColor: '#795548',
+                tags: ['3d', 'parametric', 'spiral'],
+                createdAt: now
+            },
+            {
+                id: 'sample-8',
+                title: 'Cubic Function',
+                formula: 'y=x^3-3x',
+                type: '2D',
+                author: 'Desmos Gallery',
+                lineColor: '#607D8B',
+                tags: ['cubic', 'polynomial', 'critical-points'],
+                createdAt: now
+            }
+        ];
     }
 }
 
