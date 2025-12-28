@@ -13,6 +13,7 @@
     <link href="css/styles.css" rel="stylesheet">
     <script src="calculator.js"></script>
     <script src="calculator3d.js"></script>
+    <script>window.ENV = 'dev';</script>
 </head>
 <body>
     <nav class="navbar">
@@ -79,22 +80,22 @@
                     </div>
                     <div class="modal-right">
                         <form id="modalEditForm">
-                            <div class="form-group">
+                            <div class="form-group" data-env="dev">
                                 <label for="modalTitle" class="form-label">Title</label>
                                 <input type="text" class="form-control" id="modalTitleInput" placeholder="Enter graph title">
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" data-env="dev">
                                 <label for="modalAuthor" class="form-label">Author</label>
                                 <input type="text" class="form-control" id="modalAuthorInput" placeholder="Enter author name">
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" data-env="dev">
                                 <label for="modalFormula" class="form-label">Formula</label>
                                 <textarea class="form-control" id="modalFormulaInput" placeholder="Enter formula" rows="3"></textarea>
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" data-env="dev">
                                 <label for="modalLineColor" class="form-label">Line Color</label>
                                 <div class="color-picker-wrapper">
                                     <input type="color" class="color-picker" id="modalLineColorInput">
@@ -102,7 +103,7 @@
                                 </div>
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" data-env="dev">
                                 <label for="modalTagInput" class="form-label">Tags</label>
                                 <div class="tag-input-wrapper">
                                     <input type="text" class="form-control tag-input" id="modalTagInput" placeholder="Add tags (press Enter)">
@@ -114,8 +115,8 @@
                             <div class="btn-group">
                                 <button type="button" class="btn btn-secondary" id="modalCancelBtn">Close</button>
                                 <button type="button" class="btn btn-success" id="modalDownloadBtn">Download</button>
-                                <button type="button" class="btn btn-primary" id="modalUpdateBtn">Update</button>
-                                <button type="button" class="btn btn-danger" id="modalDeleteBtn">Delete</button>
+                                <button type="button" class="btn btn-primary" id="modalUpdateBtn" data-env="dev">Update</button>
+                                <button type="button" class="btn btn-danger" id="modalDeleteBtn" data-env="dev">Delete</button>
                             </div>
                         </form>
                     </div>

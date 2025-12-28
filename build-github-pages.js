@@ -11,8 +11,9 @@ class GitHubPagesBuilder {
         this.dataDir = path.join(this.rootDir, 'data');
     }
 
-    async build() {
-        console.log('🚀 Building GitHub Pages static site...');
+    async build(env = 'prod') {
+        console.log(`🚀 Building GitHub Pages static site (${env} mode)...`);
+        this.env = env;
         
         try {
             // Clean and create _public directory
@@ -34,7 +35,7 @@ class GitHubPagesBuilder {
             // Create .nojekyll file
             await this.createNoJekyllFile();
             
-            console.log('✅ GitHub Pages build completed successfully!');
+            console.log(`✅ GitHub Pages build completed successfully! (${env} mode)`);
             console.log('📁 Static site is ready in _public/ directory');
             console.log('🌐 You can now deploy _public/ to GitHub Pages');
             
@@ -143,6 +144,17 @@ class GitHubPagesBuilder {
         indexContent = indexContent
             .replace(/integrity="[^"]*"/g, '')
             .replace(/crossorigin="[^"]*"/g, '');
+        
+        // Set environment and hide/show elements accordingly
+        const envScript = `<script>window.ENV = '${this.env}';</script>`;
+        indexContent = indexContent
+            .replace(/<script>window\.ENV = 'dev';<\/script>/g, envScript);
+        
+        if (this.env === 'prod') {
+            indexContent = indexContent
+                .replace(/data-env="dev"[^>]*>/g, 'style="display: none;" data-env="dev"')
+                .replace(/class="[^"]*data-env="dev"[^"]*"/g, 'style="display: none;"');
+        }
             
         await fs.writeFile(indexPath, indexContent);
         console.log('  ✓ Updated index.html');
@@ -159,6 +171,16 @@ class GitHubPagesBuilder {
         galleryContent = galleryContent
             .replace(/integrity="[^"]*"/g, '')
             .replace(/crossorigin="[^"]*"/g, '');
+        
+        // Set environment and hide/show elements accordingly
+        galleryContent = galleryContent
+            .replace(/<script>window\.ENV = 'dev';<\/script>/g, envScript);
+        
+        if (this.env === 'prod') {
+            galleryContent = galleryContent
+                .replace(/data-env="dev"[^>]*>/g, 'style="display: none;" data-env="dev"')
+                .replace(/class="[^"]*data-env="dev"[^"]*"/g, 'style="display: none;"');
+        }
             
         await fs.writeFile(galleryPath, galleryContent);
         console.log('  ✓ Updated gallery.html');
@@ -299,7 +321,8 @@ class GitHubPagesBuilder {
 // Run the builder
 if (require.main === module) {
     const builder = new GitHubPagesBuilder();
-    builder.build();
+    const env = process.argv[2] || 'prod'; // Default to prod
+    builder.build(env);
 }
 
 module.exports = GitHubPagesBuilder;

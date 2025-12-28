@@ -9,7 +9,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "build:github-pages": "node build-github-pages.js"
+    "build:github-pages": "node build-github-pages.js prod",
+    "build:dev": "node build-github-pages.js dev",
+    "build:prod": "node build-github-pages.js prod"
   },
   "keywords": [
     "desmos",

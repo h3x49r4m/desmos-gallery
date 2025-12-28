@@ -9,6 +9,7 @@
     <link href="css/styles.css" rel="stylesheet">
     <script src="calculator.js"></script>
     <script src="calculator3d.js"></script>
+    <script>window.ENV = 'dev';</script>
 </head>
 <body>
     <nav class="navbar">
@@ -71,7 +72,7 @@
                             </button>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" data-env="dev">
                             <label for="tagInput" class="form-label">Tags</label>
                             <div class="tag-input-wrapper">
                                 <input type="text" class="form-control tag-input" id="tagInput" placeholder="Add tags (press Enter)">
@@ -80,17 +81,17 @@
                             <div id="tagContainer" class="tag-container"></div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" data-env="dev">
                             <label for="title" class="form-label">Title</label>
                             <input type="text" class="form-control" id="title" placeholder="Give your graph a name" required>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" data-env="dev">
                             <label for="author" class="form-label">Author</label>
                             <input type="text" class="form-control" id="author" placeholder="Your name">
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" data-env="dev">
                             <button type="submit" class="btn btn-success btn-block">
                                 💾 Save Graph
                             </button>

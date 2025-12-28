@@ -1308,6 +1308,20 @@ textarea.form-control {
     border: 0;
 }
 
+/* ===== ENVIRONMENT-BASED VISIBILITY ===== */
+[data-env="dev"] {
+    display: block;
+}
+
+[data-env="prod"] {
+    display: none;
+}
+
+/* When in prod mode, hide dev-only elements */
+body[data-env="prod"] [data-env="dev"] {
+    display: none !important;
+}
+
 /* ===== AUTO-RESIZE FOR DESMOS ===== */
 .graph-container {
     position: relative;
