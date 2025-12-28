@@ -119,7 +119,7 @@ Run the test suite::
     npm test
 
 Test Coverage:
-- **178 tests** covering all functionality
+- **211 tests** covering all functionality
 - **Server Tests** (33 tests): API endpoints, static file serving, error handling, CORS, security
 - **Data Manager Tests** (23 tests): File operations, validation, sanitization, data integrity
 - **UI Component Tests** (12 tests): GraphManager, GalleryManager, form validation, responsive behavior
@@ -183,7 +183,7 @@ Scripts
 ~~~~~~~
 
 - ``npm start`` - Start the development server
-- ``npm test`` - Run the complete test suite (178 tests)
+- ``npm test`` - Run the complete test suite (211 tests)
 - ``npm run test:watch`` - Run tests in watch mode
 - ``npm run test:coverage`` - Run tests with coverage report
 
@@ -240,5 +240,5 @@ Contributing
 2. Create a feature branch
 3. Make your changes
 4. Add tests for new functionality (aim for 100% test coverage)
-5. Run the test suite (all 178 tests must pass)
+5. Run the test suite (all 211 tests must pass)
 6. Submit a pull request
