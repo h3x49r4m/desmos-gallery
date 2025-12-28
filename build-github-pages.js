@@ -138,6 +138,11 @@ class GitHubPagesBuilder {
         indexContent = indexContent
             .replace(/href="\/"/g, 'href="index.html"')
             .replace(/href="\/gallery\.html"/g, 'href="gallery.html"');
+        
+        // Remove KaTeX integrity attributes to avoid hash mismatches
+        indexContent = indexContent
+            .replace(/integrity="[^"]*"/g, '')
+            .replace(/crossorigin="[^"]*"/g, '');
             
         await fs.writeFile(indexPath, indexContent);
         console.log('  ✓ Updated index.html');
@@ -149,6 +154,11 @@ class GitHubPagesBuilder {
         galleryContent = galleryContent
             .replace(/href="\/"/g, 'href="index.html"')
             .replace(/href="\/gallery\.html"/g, 'href="gallery.html"');
+        
+        // Remove KaTeX integrity attributes to avoid hash mismatches
+        galleryContent = galleryContent
+            .replace(/integrity="[^"]*"/g, '')
+            .replace(/crossorigin="[^"]*"/g, '');
             
         await fs.writeFile(galleryPath, galleryContent);
         console.log('  ✓ Updated gallery.html');
@@ -157,25 +167,37 @@ class GitHubPagesBuilder {
     async updateJavaScriptFiles() {
         console.log('🔄 Updating JavaScript files for static deployment...');
         
-        // Update galleryManager.js to load from local data file
+        // Update galleryManager.js to embed data directly
         const galleryManagerPath = path.join(this.publicDir, 'js', 'galleryManager.js');
         let galleryManagerContent = await fs.readFile(galleryManagerPath, 'utf8');
         
-        // Replace API calls with local data loading
+        // Read the graphs data
+        const graphsDataPath = path.join(this.publicDir, 'data', 'graphs.json');
+        const graphsData = await fs.readFile(graphsDataPath, 'utf8');
+        
+        // Replace API call with embedded data
         galleryManagerContent = galleryManagerContent.replace(
-            /const response = await fetch\('\/api\/graphs'\);/,
-            "const response = await fetch('data/graphs.json');"
+            /const response = await fetch\('\/api\/graphs'\);[\s\S]*?const allGraphs = await response\.json\(\);/g,
+            `const allGraphs = ${graphsData};`
         );
         
         // Disable server-side operations (delete, update) for static deployment
+        // Replace delete fetch call
         galleryManagerContent = galleryManagerContent.replace(
-            /fetch\(`\/api\/graphs\/\$\{graphId\}`, \{ method: 'DELETE' \}\)/g,
-            "Promise.reject(new Error('Delete operation not available in static deployment'))"
+            /const response = await fetch\(`\/api\/graphs\/\$\{graphId\}`, \{ method: 'DELETE' \}\);/g,
+            "throw new Error('Delete operation not available in static deployment');"
         );
         
+        // Replace update fetch calls - find and replace the entire fetch statement
         galleryManagerContent = galleryManagerContent.replace(
-            /const response = await fetch\(`\/api\/graphs\/\$\{this\.currentEditingGraph\.id\}`,/g,
-            "Promise.reject(new Error('Update operation not available in static deployment'))"
+            /const response = await fetch\(`\/api\/graphs\/\$\{this\.currentEditingGraph\.id\}`, \{[\s\S]*?body: JSON\.stringify\(updatedData\)\s*\}\);/g,
+            "throw new Error('Update operation not available in static deployment');"
+        );
+        
+        // Also replace single line update fetch calls
+        galleryManagerContent = galleryManagerContent.replace(
+            /const response = await fetch\(`\/api\/graphs\/\$\{this\.currentEditingGraph\.id\}`, \{[\s\S]*?\}\);/g,
+            "throw new Error('Update operation not available in static deployment');"
         );
         
         await fs.writeFile(galleryManagerPath, galleryManagerContent);
