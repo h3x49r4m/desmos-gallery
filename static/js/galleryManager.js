@@ -656,35 +656,42 @@ class GalleryManager {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Set canvas size (larger for better quality)
+            // Set canvas size
             canvas.width = 1200;
-            canvas.height = 800;
+            canvas.height = 850;
             
             // White background
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Add title
-            ctx.fillStyle = '#212121';
-            ctx.font = 'bold 32px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(this.currentEditingGraph.title, canvas.width / 2, 50);
+            // Calculate padding areas (3% of canvas dimensions)
+            const topPad = Math.floor(canvas.height * 0.03); // 3% top padding = 25px
+            const bottomPad = Math.floor(canvas.height * 0.03); // 3% bottom padding = 25px
+            const leftPad = Math.floor(canvas.width * 0.03); // 3% left padding = 36px
+            const rightPad = Math.floor(canvas.width * 0.03); // 3% right padding = 36px
             
-            // Add author and date
-            ctx.font = '18px Inter, sans-serif';
-            ctx.fillStyle = '#757575';
-            const date = new Date(this.currentEditingGraph.createdAt).toLocaleDateString();
-            ctx.fillText(`By ${this.currentEditingGraph.author} • ${date}`, canvas.width / 2, 85);
+            // Calculate content areas
+            const contentTop = topPad;
+            const contentHeight = canvas.height - topPad - bottomPad; // 94% of height for content
+            const contentLeft = leftPad;
+            const contentWidth = canvas.width - leftPad - rightPad; // 94% of width for content
+            const contentCenterX = contentLeft + contentWidth / 2;
             
-            // Add formula with proper LaTeX rendering using KaTeX
-            await this.renderMathFormula(ctx, this.currentEditingGraph.formula, canvas.width / 2, 120);
+            // Row 1: Formula (10% of content height)
+            const formulaHeight = Math.floor(contentHeight * 0.10); // 10% of content height = 80px
+            const formulaY = contentTop + formulaHeight / 2; // Center formula in its area
+            await this.renderMathFormula(ctx, this.currentEditingGraph.formula, contentCenterX, formulaY, '#424242');
             
-            // Draw the calculator screenshot
+            // Row 2: Chart (80% of content height)
+            let imgHeight = Math.floor(contentHeight * 0.80); // 80% of content height = 640px
+            let chartBottomY = contentTop + formulaHeight; // Position after formula
+            
             if (calculatorImage) {
-                const imgWidth = 800;
-                const imgHeight = 500;
-                const x = (canvas.width - imgWidth) / 2;
-                const y = 160; // Adjusted to accommodate formula above
+                const imgWidth = contentWidth; // Use full content width
+                imgHeight = Math.floor(contentHeight * 0.80); // 80% of content height = 640px
+                const x = contentLeft; // Start at left padding
+                const y = contentTop + formulaHeight; // Position after formula
+                chartBottomY = y + imgHeight;
                 
                 // Add shadow for the calculator
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
@@ -706,19 +713,57 @@ class GalleryManager {
                 ctx.drawImage(calculatorImage, x, y, imgWidth, imgHeight);
             }
             
-            // Add tags if any
-            if (this.currentEditingGraph.tags && this.currentEditingGraph.tags.length > 0) {
-                ctx.font = '16px Inter, sans-serif';
-                ctx.fillStyle = '#757575';
-                ctx.textAlign = 'center';
-                ctx.fillText(`Tags: ${this.currentEditingGraph.tags.join(', ')}`, canvas.width / 2, 690);
-            }
+            // Row 3: All metadata on same row (10% of content height at bottom)
+            const metadataHeight = Math.floor(contentHeight * 0.10); // 10% of content height = 80px
+            const metadataSpacing = 20; // Additional spacing between chart and metadata
+            const metadataY = contentTop + formulaHeight + imgHeight + metadataSpacing + metadataHeight / 2; // Center in metadata area with spacing
+            const leftMargin = contentLeft; // Use content left padding
+            const rightMargin = contentLeft + contentWidth; // Right edge of content area
             
-            // Add watermark
-            ctx.font = '14px Inter, sans-serif';
-            ctx.fillStyle = 'rgba(33, 150, 243, 0.5)';
+            // Build the metadata string with bullet separators
+            const date = new Date(this.currentEditingGraph.createdAt).toLocaleDateString();
+            
+            // Set smaller font size for all metadata elements
+            ctx.font = '18px Inter, sans-serif';  // Smaller font size for metadata
+            
+            // Draw left-aligned metadata (Title • Author • Date)
+            ctx.textAlign = 'left';
+            let currentX = leftMargin;
+            
+            // Title (highlighted, bold, light gray)
+            ctx.fillStyle = '#9E9E9E';  // Light gray color
+            ctx.font = 'bold 18px Inter, sans-serif';
+            ctx.fillText(this.currentEditingGraph.title, currentX, metadataY);
+            currentX += ctx.measureText(this.currentEditingGraph.title).width;
+            
+            // First bullet separator
+            ctx.font = '18px Inter, sans-serif';
+            ctx.fillStyle = '#9E9E9E';  // Light gray color
+            ctx.fillText(' • ', currentX, metadataY);
+            currentX += ctx.measureText(' • ').width;
+            
+            // Author (normal weight, light gray)
+            ctx.font = '18px Inter, sans-serif';
+            ctx.fillStyle = '#9E9E9E';  // Light gray color
+            ctx.fillText(this.currentEditingGraph.author, currentX, metadataY);
+            currentX += ctx.measureText(this.currentEditingGraph.author).width;
+            
+            // Second bullet separator
+            ctx.font = '18px Inter, sans-serif';
+            ctx.fillStyle = '#9E9E9E';  // Light gray color
+            ctx.fillText(' • ', currentX, metadataY);
+            currentX += ctx.measureText(' • ').width;
+            
+            // Date (normal weight, light gray)
+            ctx.font = '18px Inter, sans-serif';
+            ctx.fillStyle = '#9E9E9E';  // Light gray color
+            ctx.fillText(date, currentX, metadataY);
+            
+            // Watermark - right aligned on same row as metadata
             ctx.textAlign = 'right';
-            ctx.fillText('Generated by Desmos Gallery', canvas.width - 20, canvas.height - 20);
+            ctx.font = '14px Inter, sans-serif';
+            ctx.fillStyle = '#9E9E9E';
+            ctx.fillText('Desmos Gallery @ https://github.com/h3x49r4m/desmos-gallery', rightMargin, metadataY);
             
             // Convert canvas to blob and download
             canvas.toBlob((blob) => {
@@ -738,7 +783,7 @@ class GalleryManager {
         }
     }
 
-    async renderMathFormula(ctx, formula, centerX, centerY) {
+    async renderMathFormula(ctx, formula, centerX, centerY, color = '#1976D2') {
 
             try {
 
@@ -748,13 +793,13 @@ class GalleryManager {
 
                     // Fallback to plain text if libraries are not available
 
-                    ctx.font = '18px "Courier New", monospace';
+                                        ctx.font = '18px "Courier New", monospace';
 
-                    ctx.fillStyle = '#1976D2';
+                                        ctx.fillStyle = color;
 
-                    ctx.textAlign = 'center';
+                                        ctx.textAlign = 'center';
 
-                    ctx.fillText(formula, centerX, centerY);
+                                        ctx.fillText(formula, centerX, centerY);
 
                     return;
 
@@ -764,29 +809,53 @@ class GalleryManager {
 
                 // Create a temporary container div
 
-                const containerDiv = document.createElement('div');
+    
 
-                containerDiv.style.position = 'absolute';
+                                const containerDiv = document.createElement('div');
 
-                containerDiv.style.left = '-9999px';
+    
 
-                containerDiv.style.top = '-9999px';
+                                containerDiv.style.position = 'absolute';
 
-                containerDiv.style.fontSize = '18px';
+    
 
-                containerDiv.style.color = '#1976D2';
+                                containerDiv.style.left = '-9999px';
 
-                containerDiv.style.padding = '15px';
+    
 
-                containerDiv.style.backgroundColor = 'white';
+                                containerDiv.style.top = '-9999px';
 
-                containerDiv.style.display = 'inline-block';
+    
 
-                containerDiv.style.width = 'auto';  // Let it size naturally
+                                containerDiv.style.fontSize = '18px';
 
-                containerDiv.style.overflow = 'visible';  // Don't clip content
+    
 
-                document.body.appendChild(containerDiv);
+                                containerDiv.style.color = color;
+
+    
+
+                                containerDiv.style.padding = '0px';  // No padding
+
+    
+
+                                containerDiv.style.backgroundColor = 'transparent';  // Transparent background
+
+    
+
+                                containerDiv.style.display = 'inline-block';
+
+    
+
+                                containerDiv.style.width = 'auto';  // Let it size naturally
+
+    
+
+                                containerDiv.style.overflow = 'visible';  // Don't clip content
+
+    
+
+                                document.body.appendChild(containerDiv);
 
     
 
@@ -890,7 +959,7 @@ class GalleryManager {
 
     
 
-                                    color: '#1976D2'
+                                    color: color
 
     
 
@@ -952,59 +1021,77 @@ class GalleryManager {
 
                 // Use html2canvas to capture the rendered formula
 
-                const canvas = await html2canvas(containerDiv, {
+    
 
-                    backgroundColor: '#ffffff',
-
-                    scale: 2,  // Higher resolution
-
-                    logging: false,
-
-                    useCORS: true,
-
-                    allowTaint: true,
-
-                    width: width,  // Explicit width
-
-                    height: height,  // Explicit height
-
-                    windowWidth: width,
-
-                    windowHeight: height
-
-                });
+                                const canvas = await html2canvas(containerDiv, {
 
     
 
-                // Calculate position to center the formula
-
-                const x = centerX - width / 2;
-
-                const y = centerY - height / 2;
+                                    backgroundColor: null,  // Transparent background
 
     
 
-                // Draw background
-
-                ctx.fillStyle = 'rgba(25, 118, 210, 0.05)';
-
-                ctx.fillRect(x - 20, y - 15, width + 40, height + 30);
+                                    scale: 2,  // Higher resolution
 
     
 
-                // Draw border
-
-                ctx.strokeStyle = 'rgba(25, 118, 210, 0.2)';
-
-                ctx.lineWidth = 1;
-
-                ctx.strokeRect(x - 20, y - 15, width + 40, height + 30);
+                                    logging: false,
 
     
 
-                // Draw the formula canvas on the main canvas
+                                    useCORS: true,
 
-                ctx.drawImage(canvas, x, y, width, height);
+    
+
+                                    allowTaint: true,
+
+    
+
+                                    width: width,  // Explicit width
+
+    
+
+                                    height: height,  // Explicit height
+
+    
+
+                                    windowWidth: width,
+
+    
+
+                                    windowHeight: height
+
+    
+
+                                });
+
+    
+
+                
+
+    
+
+                                // Calculate position to center the formula
+
+    
+
+                                const x = centerX - width / 2;
+
+    
+
+                                const y = centerY - height / 2;
+
+    
+
+                
+
+    
+
+                                // Draw the formula canvas on the main canvas (no background or borders)
+
+    
+
+                                ctx.drawImage(canvas, x, y, width, height);
 
     
 
@@ -1020,13 +1107,13 @@ class GalleryManager {
 
                 // Fallback to plain text
 
-                ctx.font = '18px "Courier New", monospace';
+                                ctx.font = '18px "Courier New", monospace';
 
-                ctx.fillStyle = '#1976D2';
+                                ctx.fillStyle = color;
 
-                ctx.textAlign = 'center';
+                                ctx.textAlign = 'center';
 
-                ctx.fillText(formula, centerX, centerY);
+                                ctx.fillText(formula, centerX, centerY);
 
             }
 
