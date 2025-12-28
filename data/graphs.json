@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "1766945836323",
+    "title": "Sigmoid",
+    "formula": "y = \\frac{1}{1 + e^{-x}}",
+    "type": "2D",
+    "tags": [
+      "Activation"
+    ],
+    "author": "",
+    "lineColor": "#2196f3",
+    "createdAt": "2025-12-28T18:17:16.323Z"
+  },
+  {
+    "id": "1766953191346",
+    "title": "Square Mesh Fense",
+    "formula": "\\sin x = \\cos y",
+    "type": "2D",
+    "tags": [
+      "Patterns",
+      "Fense"
+    ],
+    "author": "h3x49r4m",
+    "lineColor": "#c74c27",
+    "createdAt": "2025-12-28T20:19:51.346Z"
+  },
+  {
+    "id": "1766953462016",
+    "title": "Sphere",
+    "formula": "x^2 + y^2 + z^2 = 3",
+    "type": "3D",
+    "tags": [],
+    "author": "",
+    "lineColor": "#2196f3",
+    "createdAt": "2025-12-28T20:24:22.016Z"
+  },
+  {
+    "id": "1766953838689",
+    "title": "Tunnel",
+    "formula": "\\sin^2 x + y^2 + z^2 = 3",
+    "type": "3D",
+    "tags": [],
+    "author": "h3x49r4m",
+    "lineColor": "#2196f3",
+    "createdAt": "2025-12-28T20:30:38.689Z"
+  }
+]
