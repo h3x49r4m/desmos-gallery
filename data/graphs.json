@@ -43,5 +43,17 @@
     "author": "h3x49r4m",
     "lineColor": "#2196f3",
     "createdAt": "2025-12-28T20:30:38.689Z"
+  },
+  {
+    "id": "1767026930974",
+    "title": "Folding",
+    "formula": "x^2 y^2 = z",
+    "type": "3D",
+    "tags": [
+      "Origami"
+    ],
+    "author": "h3x49r4m",
+    "lineColor": "#c7e9a5",
+    "createdAt": "2025-12-29T16:48:50.974Z"
   }
 ]
