@@ -15,8 +15,8 @@ describe('Form Layout Tests', () => {
     });
 
     test('should have form fields in correct order', () => {
-        // Find all form groups in order
-        const formGroupRegex = /<div class="form-group">([\s\S]*?)<\/div>/g;
+        // Find all form groups in order, including those with data-env attribute
+        const formGroupRegex = /<div class="form-group"(?: data-env="[^"]*")?>([\s\S]*?)<\/div>/g;
         const formGroups = [];
         let match;
         
