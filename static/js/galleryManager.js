@@ -43,6 +43,9 @@ class GalleryManager {
                     return isValid;
                 });
                 console.log('Valid graphs after filtering:', this.graphs);
+                
+                // Sort graphs by creation date (newest first)
+                this.graphs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             }
             
             this.filteredGraphs = [...this.graphs];
@@ -127,6 +130,9 @@ class GalleryManager {
         if (this.currentFilter !== 'all') {
             filtered = filtered.filter(graph => graph.tags.includes(this.currentFilter));
         }
+
+        // Sort filtered results by creation date (newest first)
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         this.filteredGraphs = filtered;
         this.renderGraphs();
